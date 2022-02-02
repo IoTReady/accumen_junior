@@ -7,19 +7,28 @@
 */
 
 #include <ETH.h>
-// 
+#include <Arduino_JSON.h>
 #include <Adafruit_NeoPixel.h>
 #include <WebServer.h>
-// 
+#include <WiFiClient.h>
+#include <Ethernet.h>
+#include <ArduinoHttpClient.h>
 #include <Arduino_JSON.h>
-// 
+#include <Redis.h>
 #include <LiquidCrystal_I2C.h>
-
 
 #define NEOPIXEL_PIN 5
 #define NUMPIXELS 60
 #define DELAYVAL 50
 
+#define REDIS_ADDR "192.168.10.1"
+#define REDIS_PORT 6379
+#define REDIS_PASSWORD ""
+
+WiFiClient redisConn;
+Redis redis;
+
+HttpClient getApiHttpClient();
 
 static bool eth_connected = false;
 WebServer server(80);
@@ -28,6 +37,10 @@ IPAddress ip(192, 168, 10, 2);
 IPAddress gateway(192, 168, 10, 1);
 IPAddress subnetmask(255, 255, 255, 0);
 IPAddress dns(192, 168, 10, 1);
+int apiPort = 8000;
+
+EthernetClient eth;
+HttpClient apiClient = getApiHttpClient();
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -41,6 +54,15 @@ int outputs[4] = {2,12,14,33};
 static unsigned long last_interrupt_time = 0;
 
 unsigned long currentMillis = 0;             // stores the value of millis() in each iteration of loop()
+
+int limitSwitchState = 0;
+bool shouldTrigger = false;
+bool isTriggering = false;
+bool inputsChanged = false;
+
+unsigned long previousTriggerMillis = 0; // will store last time the camera was triggered
+const int triggerInterval = 500;
+
 
 void initSerial()
 {
@@ -207,14 +229,7 @@ void inputISR() {
   // If interrupts come faster than 200ms, assume it's a bounce and ignore
   if (interrupt_time - last_interrupt_time > 200)
   {
-    for (int i=0; i<sizeof inputs/sizeof inputs[0]; i++) {
-      int state = digitalRead(inputs[i]);
-      Serial.print("State of input ");
-      Serial.print(inputs[i]);
-      Serial.print(": ");
-      Serial.println(state);
-      delay(10);
-    }
+    inputsChanged = true;
   }
   last_interrupt_time = interrupt_time;
 }
@@ -365,6 +380,12 @@ void handleDisplayCharacter() {
   return success();
 }
 
+HttpClient getApiHttpClient()
+{
+  // A simple wrapper to allow re-initialisation of `apiClient`.
+  return HttpClient(eth, gateway, apiPort);
+}
+
 void WiFiEvent(WiFiEvent_t event)
 {
   switch (event) {
@@ -392,6 +413,23 @@ void WiFiEvent(WiFiEvent_t event)
       initServer();
       displayConnected();
       displayIpAddress();
+      if (!redisConn.connect(REDIS_ADDR, REDIS_PORT))
+      {
+          Serial.println("Failed to connect to the Redis server!");
+          return;
+      }
+
+      Redis redis(redisConn);
+      auto connRet = redis.authenticate(REDIS_PASSWORD);
+      if (connRet == RedisSuccess)
+      {
+          Serial.println("Connected to the Redis server!");
+      }
+      else
+      {
+          Serial.printf("Failed to authenticate to the Redis server! Errno: %d\n", (int)connRet);
+          return;
+      }
       break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
       Serial.println("ETH Disconnected");
@@ -446,5 +484,26 @@ void loop()
 {
   currentMillis = millis();
   server.handleClient();
+  if (inputsChanged == true) {
+    apiClient = getApiHttpClient();
+    apiClient.setHttpResponseTimeout(15 * 1000);
+    JSONVar payload;
+    JSONVar input_obj;
+    for (int i=0; i<sizeof inputs/sizeof inputs[0]; i++) {
+      input_obj[i] = digitalRead(inputs[i]);
+      delay(5);
+    }
+    String inputString = JSON.stringify(input_obj);
+    payload["inputs"] = inputString;
+    String jsonString = JSON.stringify(payload);
+    Serial.print("Sending inputs: ");
+    Serial.println(jsonString);
+    apiClient.post("/", "application/json", jsonString);
+    int statusCode = apiClient.responseStatusCode();
+    Serial.print("Response Status Code: ");
+    Serial.println(statusCode);
+    apiClient.stop();
+    inputsChanged = false;
+  }
   delay(2);
 }
