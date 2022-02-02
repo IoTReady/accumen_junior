@@ -1,0 +1,2 @@
+- Captures scans from multiple barcode scanners using evdev and asyncio
+- Needs to be run as root or the user has to have [appropriate permissions for /dev/hidrawX via udev](https://stackoverflow.com/questions/45987478/udev-rule-for-input-device) 
