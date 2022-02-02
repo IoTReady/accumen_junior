@@ -438,7 +438,7 @@ void setup()
   WiFi.onEvent(WiFiEvent);
   ETH.begin();
   // Uncomment the following line if using static IP config
-  // ETH.config(ip, gateway, subnetmask, dns, dns);
+  ETH.config(ip, gateway, subnetmask, dns, dns);
 }
 
 

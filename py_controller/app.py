@@ -2,8 +2,8 @@
 Flow:
 - Initialise camera
 - Start background thread for barcode scanning
-- Start FastAPI server
-- Subscribe to Redis for barcode events and publish to AIRA API once received
+- Subscribe to Redis for barcode events and publish to AIRA API once message received
+- Subscribe to Redis for controller events (limit switch) and trigger camera once message received
 - 
 """
 import asyncio
@@ -15,7 +15,7 @@ import typer
 import uvicorn
 from datetime import datetime
 from fastapi import FastAPI
-from barcode.scan import read_all_scanners
+# from barcode.scan import read_all_scanners
 from camera.camera import initialise_camera, capture_optimised
 
 g_redis_host = 'localhost'
@@ -79,16 +79,14 @@ def main(
     global stream
     global exiting
     cam, stream = initialise_camera(device=device)
-    barcode_scanner_thread = threading.Thread(target=read_all_scanners)
-    barcode_scanner_thread.start()
+    # barcode_scanner_thread = threading.Thread(target=read_all_scanners)
+    # barcode_scanner_thread.start()
     if open_redis():
         barcode_monitor_thread = threading.Thread(target=barcode_monitor)
         barcode_monitor_thread.start()
-    # loop = asyncio.get_event_loop()
     uvicorn.run(app)
     stream.close()
     cam.close()
-    # loop.stop()
     exiting = True
     
 

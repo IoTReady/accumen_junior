@@ -168,10 +168,10 @@ def read_all_scanners():
     if len(scanners) > 0:
         open_redis()
         for scanner in scanners:
-            asyncio.run(read_scanner(scanner))
-            # asyncio.ensure_future(read_scanner(scanner))
-        # loop = asyncio.get_event_loop()
-        # loop.run_forever()
+            # asyncio.run(read_scanner(scanner))
+            asyncio.ensure_future(read_scanner(scanner))
+        loop = asyncio.get_event_loop()
+        loop.run_forever()
     else:
         print("No scanner found")
 
