@@ -7,14 +7,10 @@
 */
 
 #include <ETH.h>
+#include <WiFiClient.h>
+#include <Redis.h>
 #include <Arduino_JSON.h>
 #include <Adafruit_NeoPixel.h>
-#include <WebServer.h>
-#include <WiFiClient.h>
-#include <Ethernet.h>
-#include <ArduinoHttpClient.h>
-#include <Arduino_JSON.h>
-#include <Redis.h>
 #include <LiquidCrystal_I2C.h>
 
 #define NEOPIXEL_PIN 5
@@ -24,23 +20,18 @@
 #define REDIS_ADDR "192.168.10.1"
 #define REDIS_PORT 6379
 #define REDIS_PASSWORD ""
+#define REDIS_CHANNEL "remote_io"
+#define MAX_BACKOFF 300000 // 5 minutes
 
 WiFiClient redisConn;
-Redis redis;
-
-HttpClient getApiHttpClient();
+Redis redis(redisConn);
 
 static bool eth_connected = false;
-WebServer server(80);
 
 IPAddress ip(192, 168, 10, 2);
 IPAddress gateway(192, 168, 10, 1);
 IPAddress subnetmask(255, 255, 255, 0);
 IPAddress dns(192, 168, 10, 1);
-int apiPort = 8000;
-
-EthernetClient eth;
-HttpClient apiClient = getApiHttpClient();
 
 Adafruit_NeoPixel pixels = Adafruit_NeoPixel(NUMPIXELS, NEOPIXEL_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -173,13 +164,13 @@ void initLCD()
 void success() {
   JSONVar payload;
   payload["ok"] = true;
-  server.send(200, "application/json", JSON.stringify(payload));
+  // server.send(200, "application/json", JSON.stringify(payload));
 }
 
 void error() {
   JSONVar payload;
   payload["ok"] = false;
-  server.send(404, "application/json", JSON.stringify(payload));
+  // server.send(404, "application/json", JSON.stringify(payload));
 }
 
 
@@ -252,19 +243,19 @@ void initialiseIOs() {
 
 void handleIORead() {
   int pinNumber = 0;
-  for (uint8_t i = 0; i < server.args(); i++) {
-    String argName = server.argName(i);
-    argName.toLowerCase();
-    String argValue = server.arg(i);
-    if (argName == "pin"){
-      pinNumber = argValue.toInt();
-    }
-  }
+//  for (uint8_t i = 0; i < server.args(); i++) {
+//    String argName = server.argName(i);
+//    argName.toLowerCase();
+//    String argValue = server.arg(i);
+//    if (argName == "pin"){
+//      pinNumber = argValue.toInt();
+//    }
+//  }
   if (pinNumber != 0) {
     JSONVar payload;
     payload["pin"] = pinNumber;
     payload["state"] = digitalRead(pinNumber);
-    return server.send(200, "application/json", JSON.stringify(payload));
+    return success();
   } else {
     return error();
   }
@@ -273,23 +264,23 @@ void handleIORead() {
 void handleOutputChange() {
   int pinNumber;
   int state;
-  for (uint8_t i = 0; i < server.args(); i++) {
-    String argName = server.argName(i);
-    argName.toLowerCase();
-    String argValue = server.arg(i);
-    if (argName == "pin"){
-      pinNumber = argValue.toInt();
-    } else if (argName == "state"){
-      state = argValue.toInt();
-    }
-  }
+//  for (uint8_t i = 0; i < server.args(); i++) {
+//    String argName = server.argName(i);
+//    argName.toLowerCase();
+//    String argValue = server.arg(i);
+//    if (argName == "pin"){
+//      pinNumber = argValue.toInt();
+//    } else if (argName == "state"){
+//      state = argValue.toInt();
+//    }
+//  }
   for (int i=0; i <= sizeof outputs/sizeof outputs[0]; i++) {
     if (outputs[i] == pinNumber) {
       digitalWrite(pinNumber, state);
       JSONVar payload;
       payload["pin"] = pinNumber;
       payload["state"] = digitalRead(pinNumber);
-      return server.send(200, "application/json", JSON.stringify(payload));
+      return success();
     }
   }
   return error();
@@ -299,18 +290,18 @@ void handleDisplayLine() {
   int lineNumber;
   int offset;
   String text;
-  for (uint8_t i = 0; i < server.args(); i++) {
-    String argName = server.argName(i);
-    argName.toLowerCase();
-    String argValue = server.arg(i);
-    if (argName == "line"){
-      lineNumber = argValue.toInt();
-    } else if (argName == "offset"){
-      offset = argValue.toInt();
-    } else if (argName == "text"){
-      text = argValue;
-    }
-  }
+//  for (uint8_t i = 0; i < server.args(); i++) {
+//    String argName = server.argName(i);
+//    argName.toLowerCase();
+//    String argValue = server.arg(i);
+//    if (argName == "line"){
+//      lineNumber = argValue.toInt();
+//    } else if (argName == "offset"){
+//      offset = argValue.toInt();
+//    } else if (argName == "text"){
+//      text = argValue;
+//    }
+//  }
   displayLine(lineNumber, offset, text);
   return success();
 }
@@ -341,20 +332,20 @@ void handleStoreCharacter() {
   byte character[8];
   String splitArr[8];
   
-  for (uint8_t i = 0; i < server.args(); i++) {
-    String argName = server.argName(i);
-    argName.toLowerCase();
-    String argValue = server.arg(i);
-    if (argName == "index"){
-      index = argValue.toInt();
-    } else if (argName == "character"){
-      splitString(argValue, splitArr, "\\", 8);
-      for(int i = 0; i < 8; i++){
-        character[i] = splitArr[i].toInt();
-        Serial.println(character[i]);
-      }
-    }
-  }
+//  for (uint8_t i = 0; i < server.args(); i++) {
+//    String argName = server.argName(i);
+//    argName.toLowerCase();
+//    String argValue = server.arg(i);
+//    if (argName == "index"){
+//      index = argValue.toInt();
+//    } else if (argName == "character"){
+//      splitString(argValue, splitArr, "\\", 8);
+//      for(int i = 0; i < 8; i++){
+//        character[i] = splitArr[i].toInt();
+//        Serial.println(character[i]);
+//      }
+//    }
+//  }
 
   lcd.createChar(index, character);
   return success();
@@ -364,101 +355,90 @@ void handleDisplayCharacter() {
   int lineNumber;
   int offset;
   int index;
-  for (uint8_t i = 0; i < server.args(); i++) {
-    String argName = server.argName(i);
-    argName.toLowerCase();
-    String argValue = server.arg(i);
-    if (argName == "line"){
-      lineNumber = argValue.toInt();
-    } else if (argName == "offset"){
-      offset = argValue.toInt();
-    } else if (argName == "index"){
-      index = argValue.toInt();
-    }
-  }
+//  for (uint8_t i = 0; i < server.args(); i++) {
+//    String argName = server.argName(i);
+//    argName.toLowerCase();
+//    String argValue = server.arg(i);
+//    if (argName == "line"){
+//      lineNumber = argValue.toInt();
+//    } else if (argName == "offset"){
+//      offset = argValue.toInt();
+//    } else if (argName == "index"){
+//      index = argValue.toInt();
+//    }
+//  }
   displayCharacter(lineNumber, offset, index);
   return success();
 }
 
-HttpClient getApiHttpClient()
-{
-  // A simple wrapper to allow re-initialisation of `apiClient`.
-  return HttpClient(eth, gateway, apiPort);
-}
 
 void WiFiEvent(WiFiEvent_t event)
 {
   switch (event) {
     case SYSTEM_EVENT_ETH_START:
-      Serial.println("ETH Started");
-      //set eth hostname here
-      ETH.setHostname("esp32-ethernet");
+      {
+        Serial.println("ETH Started");
+        //set eth hostname here
+        ETH.setHostname("esp32-ethernet");
+      }
       break;
     case SYSTEM_EVENT_ETH_CONNECTED:
-      Serial.println("ETH Connected");
+      {
+        Serial.println("ETH Connected");
+      }
       break;
     case SYSTEM_EVENT_ETH_GOT_IP:
-      Serial.print("ETH MAC: ");
-      Serial.print(ETH.macAddress());
-      Serial.print(", IPv4: ");
-      Serial.print(ETH.localIP());
-      if (ETH.fullDuplex()) {
-        Serial.print(", FULL_DUPLEX");
-      }
-      Serial.print(", ");
-      Serial.print(ETH.linkSpeed());
-      Serial.println("Mbps");
-      eth_connected = true;
-      Serial.println("Starting HTTP server");
-      initServer();
-      displayConnected();
-      displayIpAddress();
-      if (!redisConn.connect(REDIS_ADDR, REDIS_PORT))
       {
-          Serial.println("Failed to connect to the Redis server!");
-          return;
-      }
-
-      Redis redis(redisConn);
-      auto connRet = redis.authenticate(REDIS_PASSWORD);
-      if (connRet == RedisSuccess)
-      {
-          Serial.println("Connected to the Redis server!");
-      }
-      else
-      {
-          Serial.printf("Failed to authenticate to the Redis server! Errno: %d\n", (int)connRet);
-          return;
+        Serial.print("ETH MAC: ");
+        Serial.print(ETH.macAddress());
+        Serial.print(", IPv4: ");
+        Serial.print(ETH.localIP());
+        if (ETH.fullDuplex()) {
+          Serial.print(", FULL_DUPLEX");
+        }
+        Serial.print(", ");
+        Serial.print(ETH.linkSpeed());
+        Serial.println("Mbps");
+        eth_connected = true;
+        Serial.println("Starting HTTP server");
+        displayConnected();
+        displayIpAddress();
+        if (!redisConn.connect(REDIS_ADDR, REDIS_PORT))
+        {
+            Serial.println("Failed to connect to the Redis server!");
+            return;
+        }
+  
+        Redis redis(redisConn);
+        auto connRet = redis.authenticate(REDIS_PASSWORD);
+        if (connRet == RedisSuccess)
+        {
+            Serial.println("Connected to the Redis server!");
+        }
+        else
+        {
+            Serial.printf("Failed to authenticate to the Redis server! Errno: %d\n", (int)connRet);
+            return;
+        }
       }
       break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
-      Serial.println("ETH Disconnected");
-      eth_connected = false;
+      {
+        Serial.println("ETH Disconnected");
+        eth_connected = false;
+      }
       break;
     case SYSTEM_EVENT_ETH_STOP:
-      Serial.println("ETH Stopped");
-      eth_connected = false;
+      {
+        Serial.println("ETH Stopped");
+        eth_connected = false;
+      }
       break;
     default:
+      {
+      }
       break;
   }
-}
-
-void initServer() {
-  // healthcheck path
-  server.on("/", success);
-  server.on("/illumination/off", handlePixelsOff);
-  server.on("/illumination/on", handlePixelsOn);
-  server.on("/input", handleIORead);
-  server.on("/output", handleOutputChange);
-  server.on("/display/line", handleDisplayLine);
-  server.on("/display/store", handleStoreCharacter);
-  server.on("/display/character", handleDisplayCharacter);
- 
-  server.onNotFound(handleNotFound);
-
-  server.begin();
-  Serial.println("HTTP server started");
 }
 
 void setup()
@@ -483,26 +463,19 @@ void setup()
 void loop()
 {
   currentMillis = millis();
-  server.handleClient();
   if (inputsChanged == true) {
-    apiClient = getApiHttpClient();
-    apiClient.setHttpResponseTimeout(15 * 1000);
     JSONVar payload;
-    JSONVar input_obj;
     for (int i=0; i<sizeof inputs/sizeof inputs[0]; i++) {
-      input_obj[i] = digitalRead(inputs[i]);
+      payload[String(inputs[i])] = digitalRead(inputs[i]);
       delay(5);
     }
-    String inputString = JSON.stringify(input_obj);
-    payload["inputs"] = inputString;
     String jsonString = JSON.stringify(payload);
     Serial.print("Sending inputs: ");
     Serial.println(jsonString);
-    apiClient.post("/", "application/json", jsonString);
-    int statusCode = apiClient.responseStatusCode();
-    Serial.print("Response Status Code: ");
-    Serial.println(statusCode);
-    apiClient.stop();
+    int length = 100;
+    char buffer[length];
+    jsonString.toCharArray(buffer, length);
+    Serial.println(redis.publish(REDIS_CHANNEL, buffer));
     inputsChanged = false;
   }
   delay(2);

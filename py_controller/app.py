@@ -11,32 +11,35 @@ import json
 import time
 import redis
 import typer
-import uvicorn
 from datetime import datetime
-from fastapi import FastAPI
-from pydantic import BaseModel
 # from barcode.scan import read_all_scanners
 from camera.camera import initialise_camera, capture_optimised
 
-g_redis_host = 'localhost'
+g_redis_host = '192.168.10.1'
 g_redis_port = 6379
 g_redis = None
 g_pubsub = None
+io_channel = 'remote_io'
 barcode_channel = 'barcode'
+
+limit_switch_pin = 36
 
 cam = None
 stream = None
 exiting = False
 
-app = FastAPI()
-
-class Inputs(BaseModel):
-    inputs: str
 
 def barcode_event(message):
     barcode = json.loads(message.get('data'))
-    print(barcode)
+    print("Barcode received via Redis:", barcode)
     # Dispatch to AIRA's barcode validation API - WIP
+
+
+def io_event(message):
+    inputs = json.loads(message.get('data'))
+    print(inputs)
+    if inputs.get(str(limit_switch_pin)) == 0:
+        trigger()
 
 
 def get_message():
@@ -56,27 +59,19 @@ def open_redis():
         g_redis.ping()
         g_pubsub = g_redis.pubsub(ignore_subscribe_messages=True)
         g_pubsub.subscribe(**{barcode_channel: barcode_event})
-        print("Subscribed!")
+        g_pubsub.subscribe(**{io_channel: io_event})
+        print("Subscribed to barcode and remote_io!")
         return True
     except:
         time.sleep(1)
         return open_redis()
 
-def barcode_monitor():
-    while not exiting:
-        get_message()
-        time.sleep(0.1)
-
-@app.get("/")
 def healthcheck():
     return {"ok": True, "now": datetime.now().timestamp()}
 
-@app.post('/')
-def trigger(inputs: Inputs):
-    # inputs = json.loads(inputs)
-    print(inputs)
-    return True
-    # return capture_optimised(cam, stream)
+def trigger():
+    
+    return capture_optimised(cam, stream)
 
 def main(
     device: int = 0,
@@ -85,15 +80,11 @@ def main(
     global stream
     global exiting
     cam, stream = initialise_camera(device=device)
-    # barcode_scanner_thread = threading.Thread(target=read_all_scanners)
-    # barcode_scanner_thread.start()
-    if open_redis():
-        barcode_monitor_thread = threading.Thread(target=barcode_monitor)
-        barcode_monitor_thread.start()
-    uvicorn.run(app, host="0.0.0.0", debug=True)
+    while True:
+        get_message()
+        time.sleep(0.1)
     stream.close()
     cam.close()
-    exiting = True
     
 
 if __name__=="__main__":

@@ -19,7 +19,7 @@ SHIFT_KEYCODES = [42, 54]
 
 
 # Redis connection params
-g_redis_host = 'localhost'
+g_redis_host = '192.168.10.1'
 g_redis_port = 6379
 g_redis = None
 channel = 'barcode'
