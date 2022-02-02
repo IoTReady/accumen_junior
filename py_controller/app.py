@@ -6,7 +6,6 @@ Flow:
 - Subscribe to Redis for controller events (limit switch) and trigger camera once message received
 - 
 """
-import asyncio
 import threading
 import json
 import time
@@ -15,6 +14,7 @@ import typer
 import uvicorn
 from datetime import datetime
 from fastapi import FastAPI
+from pydantic import BaseModel
 # from barcode.scan import read_all_scanners
 from camera.camera import initialise_camera, capture_optimised
 
@@ -29,6 +29,9 @@ stream = None
 exiting = False
 
 app = FastAPI()
+
+class Inputs(BaseModel):
+    inputs: str
 
 def barcode_event(message):
     barcode = json.loads(message.get('data'))
@@ -69,8 +72,11 @@ def healthcheck():
     return {"ok": True, "now": datetime.now().timestamp()}
 
 @app.post('/')
-def trigger():
-    return capture_optimised(cam, stream)
+def trigger(inputs: Inputs):
+    # inputs = json.loads(inputs)
+    print(inputs)
+    return True
+    # return capture_optimised(cam, stream)
 
 def main(
     device: int = 0,
@@ -84,7 +90,7 @@ def main(
     if open_redis():
         barcode_monitor_thread = threading.Thread(target=barcode_monitor)
         barcode_monitor_thread.start()
-    uvicorn.run(app)
+    uvicorn.run(app, host="0.0.0.0", debug=True)
     stream.close()
     cam.close()
     exiting = True
