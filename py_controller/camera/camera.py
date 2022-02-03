@@ -3,7 +3,6 @@ import time
 import json
 import logging
 import asyncio
-import redis
 from io import BytesIO
 from datetime import datetime
 from subprocess import call
@@ -11,10 +10,6 @@ from PIL import Image, ImageStat
 from .v4l2py import Device
 
 log = logging.getLogger(__name__)
-
-g_redis_host = '192.168.10.1'
-g_redis_port = 6379
-g_redis = None
 
 g_width = 3264
 g_height = 2448
@@ -50,46 +45,6 @@ g_contrast_control_max = 48
 g_contrast_control_step = 2
 
 g_max_attempts = 50
-
-
-def open_redis():
-    global g_redis
-    global g_pubsub
-    # Open redis connection
-    g_redis = redis.Redis(host=g_redis_host, port=g_redis_port, db=0)
-    try:
-        # Check if redis is running, if not we call this recursively
-        g_redis.ping()
-        return True
-    except:
-        time.sleep(1)
-        return open_redis()
-
-
-def success(result):
-    try:
-        payload = {"ok": True, **result}
-        log.debug(payload)
-        g_redis.set("camera_result", json.dumps(payload), 10) # expires in 10s
-        print("Result", payload)
-        return payload
-    except Exception as e:
-        print(str(e))
-        time.sleep(1)
-        open_redis()
-
-
-def error(message: str):
-    try:
-        payload = {"ok": False, "time": datetime.now().isoformat(), "error": message}
-        log.error(payload)
-        g_redis.set("camera_result", json.dumps(payload), 10) # expires in 10s
-        print("Result", payload)
-        return payload
-    except Exception as e:
-        print(str(e))
-        time.sleep(1)
-        open_redis()
 
 
 def estimate_brightness(img):
@@ -212,17 +167,10 @@ def capture_optimised(cam,stream):
         call(f"convert {tmppath} -crop {g_width-2*g_xoffset}x{g_height-2*g_yoffset}+{g_xoffset}+{g_yoffset} {fpath}", shell=True)
         ret['path'] = fpath
         ret['attempts'] = count + 1
-        return success(ret)
+        return ret
     except Exception as e:
-        return error(str(e))
-
-
-async def healthcheck():
-    # Publish a health check every 5 seconds
-    if open_redis():
-        while True:
-            await asyncio.sleep(5)
-            g_redis.set("camera_status", "ok")
+        print(str(e))
+        return {"error": str(e)}
 
 
 def initialise_camera(
@@ -303,8 +251,6 @@ def initialise_camera(
         filename=logfile,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    print("Connecting to Redis")
-    open_redis()
     print("Starting Camera")
     cam = Device.from_id(device)
     # Camera is now open and locked.

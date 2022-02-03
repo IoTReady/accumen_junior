@@ -6,11 +6,11 @@ Flow:
 - Subscribe to Redis for controller events (limit switch) and trigger camera once message received
 - 
 """
-import threading
 import json
 import time
 import redis
 import typer
+import requests
 from datetime import datetime
 # from barcode.scan import read_all_scanners
 from camera.camera import initialise_camera, capture_optimised
@@ -22,7 +22,15 @@ g_pubsub = None
 io_channel = 'remote_io'
 barcode_channel = 'barcode'
 
+remote_io_host = '192.168.10.2'
+remote_io_port = 80
+
+# on display:
+status_line_num = 3
+
 limit_switch_pin = 36
+led_1 = 2
+led_2 = 12
 
 cam = None
 stream = None
@@ -36,10 +44,11 @@ def barcode_event(message):
 
 
 def io_event(message):
-    inputs = json.loads(message.get('data'))
-    print(inputs)
-    if inputs.get(str(limit_switch_pin)) == 0:
-        trigger()
+    data = json.loads(message.get('data'))
+    triggerId = data.get("triggerId")
+    if data.get('capture') and triggerId:
+        print(data)
+        trigger(triggerId)
 
 
 def get_message():
@@ -66,12 +75,36 @@ def open_redis():
         time.sleep(1)
         return open_redis()
 
-def healthcheck():
-    return {"ok": True, "now": datetime.now().timestamp()}
+def lcd_status_print(message):
+    offset = 0
+    url = f"http://{remote_io_host:remote_io_port}/display/line?line={status_line_num}&offset={offset}&text={message}"
+    res = requests.get(url)
+    print(res.text)
 
-def trigger():
-    
-    return capture_optimised(cam, stream)
+def set_led_state(pin,state):
+    url = f"http://{remote_io_host:remote_io_port}/output?pin={pin}&state={state}"
+    res = requests.get(url)
+    print(res.text)
+
+def trigger(triggerId):
+    print("Triggered", triggerId)
+    # Trigger Status: 0 = In Progress; 1 = Done; 2 = Error
+    g_redis.set(triggerId, 0)
+    ret = capture_optimised(cam, stream)
+    if ret.get("error"):
+        print(ret)
+        g_redis.set(triggerId, 2)
+    else:
+        print("Capture: ", triggerId, ": ", ret)
+        g_redis.set(triggerId, 1)
+    # set_led_state(led_2, 1)
+    # lcd_status_print("Imaging in Progress")
+    # capture_optimised(cam, stream)
+    # lcd_status_print("Imaging Complete")
+    # time.sleep(2)
+    # lcd_status_print("Insert Petri Dish")
+    # set_led_state(led_2, 0)
+
 
 def main(
     device: int = 0,
