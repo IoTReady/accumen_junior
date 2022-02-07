@@ -104,6 +104,9 @@ void displayConnected()
   lcd.write(0);
   lcd.setCursor(19, 0);
   lcd.print(">");
+  if (!isTriggering) {
+    displayWaiting();
+  }
 }
 
 void displayDisconnected()
@@ -359,7 +362,6 @@ void WiFiEvent(WiFiEvent_t event)
         {
             Serial.println("Connected to the Redis server!");
             displayConnected();
-            displayWaiting();
         }
         else
         {
