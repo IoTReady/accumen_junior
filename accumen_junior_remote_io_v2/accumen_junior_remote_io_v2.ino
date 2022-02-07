@@ -104,7 +104,6 @@ void displayConnected()
   lcd.write(0);
   lcd.setCursor(19, 0);
   lcd.print(">");
-  displayWaiting();
 }
 
 void displayDisconnected()
@@ -277,6 +276,7 @@ void syncProcessStatus() {
     if (triggerStatus == 0) {
       // do nothing
     } else if (triggerStatus == 1) {
+      delay(1000); // Artificial delay to account for faster frame capture once the camera settings are optimised.
       currentTriggerId = 0;
       displayCaptured();
       delay(2000);
@@ -359,6 +359,7 @@ void WiFiEvent(WiFiEvent_t event)
         {
             Serial.println("Connected to the Redis server!");
             displayConnected();
+            displayWaiting();
         }
         else
         {
