@@ -183,12 +183,14 @@ void maybeTrigger()
     digitalWrite(LED2, HIGH);
     displayTriggered();
     int statusCode = postTrigger();
+    Serial.println("maybeTrigger StatusCode:");
+    Serial.print(statusCode);
     // statusCode is number of subscribers
-    if (statusCode == 0)
+    if (statusCode > 0 && statusCode <= 10)
     {
-      displayDisconnected();
-    } else {
       displayConnected();
+    } else {
+      displayDisconnected();
     }
   }
   shouldTrigger = false;
@@ -230,10 +232,13 @@ bool postLog()
   char buffer[length];
   jsonString.toCharArray(buffer, length);
   int statusCode = redis.publish(REDIS_CHANNEL, buffer);
-  if (statusCode == 0) {
-    displayDisconnected();
-  } else {
+  Serial.println("postLog Status Code: ");
+  Serial.print(statusCode);
+  if (statusCode > 0 && statusCode <= 10)
+  {
     displayConnected();
+  } else {
+    displayDisconnected();
   }
 }
 
@@ -253,7 +258,9 @@ void pixelsOn()
 {
   pixels.clear();
 
-  int pixelArray[] = {3,4,5,14,15,16,25,26,27,36,37,38};
+  // int pixelArray[] = {3,4,5,14,15,16,25,26,27,36,37,38};
+  int pixelArray[] = {0, 1, 2, 14, 15, 16, 28, 29, 30, 42, 43, 44};
+
 
   for (int i = 0; i < sizeof pixelArray/sizeof pixelArray[0]; i++)
   {
@@ -321,6 +328,28 @@ void initLimitSwitch()
   attachInterrupt(digitalPinToInterrupt(LIMITSWITCH), limitSwitchISR, CHANGE);
 }
 
+void connectRedis() {
+  if (!redisConn.connect(REDIS_ADDR, REDIS_PORT))
+  {
+      Serial.println("Failed to connect to the Redis server!");
+      return;
+  }
+
+  Redis redis(redisConn);
+  auto connRet = redis.authenticate(REDIS_PASSWORD);
+  if (connRet == RedisSuccess)
+  {
+      Serial.println("Connected to the Redis server!");
+      displayConnected();
+  }
+  else
+  {
+      Serial.printf("Failed to authenticate to the Redis server! Errno: %d\n", (int)connRet);
+      displayDisconnected();
+      return;
+  }
+}
+
 void WiFiEvent(WiFiEvent_t event)
 {
   switch (event) {
@@ -350,25 +379,7 @@ void WiFiEvent(WiFiEvent_t event)
         Serial.println("Mbps");
         eth_connected = true;
         displayIpAddress();
-        if (!redisConn.connect(REDIS_ADDR, REDIS_PORT))
-        {
-            Serial.println("Failed to connect to the Redis server!");
-            return;
-        }
-  
-        Redis redis(redisConn);
-        auto connRet = redis.authenticate(REDIS_PASSWORD);
-        if (connRet == RedisSuccess)
-        {
-            Serial.println("Connected to the Redis server!");
-            displayConnected();
-        }
-        else
-        {
-            Serial.printf("Failed to authenticate to the Redis server! Errno: %d\n", (int)connRet);
-            displayDisconnected();
-            return;
-        }
+        connectRedis();
       }
       break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
