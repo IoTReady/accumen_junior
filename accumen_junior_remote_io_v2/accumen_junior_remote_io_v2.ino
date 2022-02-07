@@ -194,7 +194,6 @@ void maybeTrigger()
     }
   }
   shouldTrigger = false;
-  isTriggering = false;
 }
 
 void limitSwitchISR()
@@ -292,10 +291,12 @@ void syncProcessStatus() {
       delay(2000);
       displayWaiting();
       digitalWrite(LED2, LOW);
+      isTriggering = false;
     } else {
       currentTriggerId = 0;
       displayError();
       digitalWrite(LED2, LOW);
+      isTriggering = false;
     }
     previousStatusCheckMillis = millis();
   }
@@ -414,7 +415,7 @@ void initSerial()
 
 void healthcheck()
 {
-  if (!isTriggering && currentMillis - previousHealthcheckMillis >= healthcheckInterval)
+  if (eth_connected && currentMillis - previousHealthcheckMillis >= healthcheckInterval)
   {
     postLog();
     previousHealthcheckMillis = millis();
