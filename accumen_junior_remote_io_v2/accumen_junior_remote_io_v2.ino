@@ -98,6 +98,7 @@ void displayConnecting()
 
 void displayConnected()
 {
+  displayIpAddress();
   lcd.setCursor(17, 0);
   lcd.print("<");
   lcd.setCursor(18, 0);
