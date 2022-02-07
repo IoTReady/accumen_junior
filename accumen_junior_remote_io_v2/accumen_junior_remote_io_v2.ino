@@ -378,9 +378,9 @@ void WiFiEvent(WiFiEvent_t event)
         Serial.print(", ");
         Serial.print(ETH.linkSpeed());
         Serial.println("Mbps");
-        eth_connected = true;
         displayIpAddress();
         connectRedis();
+        eth_connected = true;
       }
       break;
     case SYSTEM_EVENT_ETH_DISCONNECTED:
