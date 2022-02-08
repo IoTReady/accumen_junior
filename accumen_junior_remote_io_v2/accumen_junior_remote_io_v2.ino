@@ -82,22 +82,27 @@ void clearLCDLine(int line)
 
 void displayWaiting()
 {
+  delay(10);
   clearLCDLine(3);
   lcd.setCursor(1, 3);
   lcd.print("Insert Petri Dish");
+  Serial.println("Display: Insert Petri Dish");
 }
 
 void displayConnecting()
 {
+  delay(10);
   lcd.setCursor(17, 0);
   lcd.print("<X>");
   clearLCDLine(3);
   lcd.setCursor(1, 3);
   lcd.print("Connecting to PC...");
+  Serial.println("Display: Connecting to PC...");
 }
 
 void displayConnected()
 {
+  delay(10);
   displayIpAddress();
   lcd.setCursor(17, 0);
   lcd.print("<");
@@ -105,6 +110,7 @@ void displayConnected()
   lcd.write(0);
   lcd.setCursor(19, 0);
   lcd.print(">");
+  Serial.println("Display: Checkmark");
   if (!isTriggering) {
     displayWaiting();
   }
@@ -112,48 +118,60 @@ void displayConnected()
 
 void displayDisconnected()
 {
+  delay(10);
   lcd.setCursor(17, 0);
   lcd.print("<x>");
   clearLCDLine(3);
   lcd.setCursor(0, 3);
   lcd.print("Check PC Connection ");
+  Serial.println("Display: Check PC Connection");
 }
 
 void displayCameraDisconnected()
 {
+  delay(10);
   lcd.setCursor(17, 0);
   lcd.print("<x>");
   clearLCDLine(3);
   lcd.setCursor(0, 3);
   lcd.print("Camera Disconnected");
+  Serial.println("Display: Camera Disconnected");
 }
 
 void displayError()
 {
+  delay(10);
   clearLCDLine(3);
   lcd.setCursor(0, 3);
   lcd.print("Capture Error");
+  Serial.println("Display: Capture Error");
 }
 
 void displayTriggered()
 {
+  delay(10);
   clearLCDLine(3);
   lcd.setCursor(0, 3);
   lcd.print("Imaging in Progress");
+  Serial.println("Display: Imaging in Progress");
 }
 
 void displayCaptured()
 {
+  delay(10);
   clearLCDLine(3);
   lcd.setCursor(2, 3);
   lcd.print("Imaging Complete");
+  Serial.println("Display: Imaging Complete");
 }
 
 void displayIpAddress()
 {
+  delay(10);
   IPAddress ip = ETH.localIP();
   lcd.setCursor(0, 0);
   lcd.print(ip);
+  Serial.println("Display: IP Address");
 }
 
 int postTrigger()
@@ -236,7 +254,7 @@ bool postLog()
   Serial.print(statusCode);
   if (statusCode > 0 && statusCode <= 10)
   {
-    displayConnected();
+     //displayConnected();
   } else {
     displayDisconnected();
   }
