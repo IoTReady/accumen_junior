@@ -263,7 +263,7 @@ def initialise_camera(
     # We skip a few frames at the start
     for i in range(skip):
         next(stream)
-    calc_optimal_exposure(cam, stream)
+    # calc_optimal_exposure(cam, stream)
     return cam, stream
 
 
