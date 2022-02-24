@@ -2,4 +2,4 @@
 
 sudo /usr/local/bin/accumen.sh
 source ./venv/bin/activate
-./venv/bin/python app.py --device 3
+./venv/bin/python app.py --device 2

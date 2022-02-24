@@ -1,4 +1,4 @@
 #!/bin/bash
 
 source ./venv/bin/activate
-python capture.py --device 3
+python capture.py --device 2
