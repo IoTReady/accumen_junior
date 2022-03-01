@@ -18,7 +18,8 @@ cp id_rsa* ~/.ssh/
 echo -e "Cloning Repo"
 mkdir ~/accumen/
 cd ~/accumen/
-git clone git@github.com:IoTReady/accumen_junior.git
+#git clone git@github.com:IoTReady/accumen_junior.git
+git clone https://github.com/IoTReady/accumen_junior.git
 
 echo -e "Please edit the configuration files inside accumen_junior/conf before proceeding"
 
