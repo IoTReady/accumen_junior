@@ -9,7 +9,7 @@
 #!/bin/bash
 
 echo -e "Updating system and installing dependencies"
-sudo apt update && sudo apt upgrade -y && sudo apt install -y redis git python3-venv python3-pip imagemagick guvcview fswebcam net-tools wget vim
+sudo apt update && sudo apt upgrade -y && sudo apt install -y redis git python3-venv python3-pip imagemagick guvcview fswebcam net-tools wget vim v4l-utils
 
 echo -e "Copying ssh keys"
 mkdir ~/.ssh
