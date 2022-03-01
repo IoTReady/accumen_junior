@@ -9,7 +9,7 @@
 #!/bin/bash
 
 echo -e "Updating system and installing dependencies"
-sudo apt update && sudo apt upgrade -y && sudo apt install redis git python3-venv python3-pip imagemagick guvcview fswebcam net-tools
+sudo apt update && sudo apt upgrade -y && sudo apt install redis git python3-venv python3-pip imagemagick guvcview fswebcam net-tools wget
 
 echo -e "Copying ssh keys"
 mkdir ~/.ssh
@@ -31,6 +31,14 @@ sudo cp dnsmasq.conf /etc/dnsmasq.conf
 sudo cp accumen.service /etc/systemd/system/
 sudo cp accumen.sh /usr/local/bin/
 sudo systemctl enable accumen.service
+
+echo -e "Setting up programmer for controller"
+mkdir ~/bin
+cd ~/Downloads/
+wget https://downloads.arduino.cc/arduino-1.8.19-linux64.tar.xz
+tar xf arduino-1.8.19.tar.xz -C ~/bin/
+ln -s /home/ccmsadmin/bin/arduino-1.8.19/arduino /home/ccmsadmin/bin/arduino
+echo "export PATH=\$PATH:\$HOME/bin" >> ~/.bashrc
 
 echo -e "Rebooting"
 sleep 3
