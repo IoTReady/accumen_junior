@@ -28,6 +28,7 @@ read response
 
 echo -e "Copying configuration scripts"
 cd accumen_junior/conf/
+sudo cp redis.conf /etc/redis/redis.conf
 sudo cp dnsmasq.conf /etc/dnsmasq.conf
 sudo cp accumen.service /etc/systemd/system/
 sudo cp accumen.sh /usr/local/bin/
