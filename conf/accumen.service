@@ -1,0 +1,15 @@
+[Unit]
+Description=Accumen Initialisation
+Requires=network.target
+After=network.target
+Wants=network.target
+
+[Service]
+ExecStart=/usr/local/bin/accumen.sh
+KillMode=process
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=Accumen Initialisation
+
+[Install]
+WantedBy=multi-user.target
