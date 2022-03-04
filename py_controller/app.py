@@ -11,9 +11,11 @@ import time
 import redis
 import typer
 import requests
+from os import path
 from datetime import datetime
 # from barcode.scan import read_all_scanners
 from camera.camera import initialise_camera, capture_optimised
+from api_client import validate_barcode, validate_image
 
 g_redis_host = '192.168.10.1'
 g_redis_port = 6379
@@ -36,11 +38,11 @@ cam = None
 stream = None
 exiting = False
 
-
 def barcode_event(message):
     barcode = json.loads(message.get('data'))
     print("Barcode received via Redis:", barcode)
     # Dispatch to AIRA's barcode validation API - WIP
+    validate_barcode(barcode)
 
 
 def io_event(message):
@@ -87,6 +89,8 @@ def set_led_state(pin,state):
     print(res.text)
 
 def trigger(triggerId):
+    # The AIRA API expects a path wrt to the Docker container so we need to remap.
+    fpath_for_api = "/mnt/original_image/"
     print("Triggered", triggerId)
     # Trigger Status: 0 = In Progress; 1 = Done; 2 = Error
     g_redis.set(triggerId, 0)
@@ -97,6 +101,9 @@ def trigger(triggerId):
     else:
         print("Capture: ", triggerId, ": ", ret)
         g_redis.set(triggerId, 1)
+        fname = path.basename(ret.get("path"))
+        fpath = path.join(fpath_for_api, fname)
+        validate_image(fpath)
     # set_led_state(led_2, 1)
     # lcd_status_print("Imaging in Progress")
     # capture_optimised(cam, stream)
@@ -108,11 +115,12 @@ def trigger(triggerId):
 
 def main(
     device: int = 0,
+    path: str = "/tmp",
 ):
     global cam
     global stream
     global exiting
-    cam, stream = initialise_camera(device=device)
+    cam, stream = initialise_camera(device=device, path=path)
     while True:
         get_message()
         time.sleep(0.1)
