@@ -42,7 +42,7 @@ def barcode_event(message):
     barcode = json.loads(message.get('data'))
     print("Barcode received via Redis:", barcode)
     # Dispatch to AIRA's barcode validation API - WIP
-    validate_barcode(barcode)
+    # validate_barcode(barcode)
 
 
 def io_event(message):

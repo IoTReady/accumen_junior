@@ -10,6 +10,7 @@ import time
 import asyncio
 import evdev
 import redis
+import requests
 
 # Change this if not using a Zebra/Symbol/Motorola scanner.
 DEVICE_PREFIX = "Symbol Technologies, Inc, 2008 Symbol Bar Code Scanner::EA"
@@ -116,11 +117,13 @@ def dispatch_barcode(barcode):
     Helper function to do something useful with the detected barcode.
     """
     # Use the barcode here by sending to an API or updating it in a shared state dictionary
-    print(f"Scanned: {barcode}")
+    print(f"Scanned: {barcode} of type {type(barcode)}")
     try:
-        g_redis.publish(channel, barcode)
-        g_redis.set("barcode", barcode, 5)
-        print("Published!")
+        # g_redis.publish(channel, barcode)
+        # g_redis.set("barcode", barcode, 5)
+        url = "http://192.168.10.1:9099/ccms/validate/barcode"
+        res = requests.post(url, data=barcode)
+        print("Published!", res.text)
     except:
         time.sleep(1)
         open_redis()
