@@ -36,11 +36,11 @@ def get_refresh_token():
 
 
 def validate_image(image_path, barcode=None):
-    res = login()
+    # res = login()
     headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": f"Bearer {res.get('access_token')}",
+        # "Authorization": f"Bearer {res.get('access_token')}",
         "Current-Role": "ROLE_ANALYST",
     }
     req = {
