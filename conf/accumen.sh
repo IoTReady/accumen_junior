@@ -2,7 +2,7 @@
 
 BASEDIR=/home/ccmsadmin/accumen/accumen_junior/
 # Set static IP address
-sudo ifconfig ens8191 192.168.10.1
+sudo ifconfig ens4f0 192.168.10.1
 
 # Warm up camera
 v4l2-ctl -c exposure_auto=3
