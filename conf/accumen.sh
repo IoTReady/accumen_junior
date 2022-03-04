@@ -10,7 +10,7 @@ fswebcam -D 3 -S 2 -r 3264x2448 -F 3
 
 # Start Camera API
 echo "Starting Camera API"
-$BASEDIR/py_controller/run_camera.sh
+$BASEDIR/py_controller/run_camera.sh &
 
 # Wait for network
 #while ! ping -c 1 -W 1 172.16.61.180; do
@@ -23,7 +23,7 @@ $BASEDIR/py_controller/run_camera.sh
 
 # Start Barcode Scanner
 echo "Starting barcode scanner"
-$BASEDIR/py_controller/run_barcode.sh
+$BASEDIR/py_controller/run_barcode.sh &
 
 # Move files
 #echo "Starting file mover"
