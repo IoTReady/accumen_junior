@@ -60,8 +60,8 @@ def validate_barcode(barcode):
     url = f"{base_url}:9099/ccms/validate/barcode"
     res = login()
     headers = {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
+        # "Content-Type": "application/json",
+        # "Accept": "application/json",
         "Authorization": f"Bearer {res.get('access_token')}",
         "Current-Role": "ROLE_ANALYST",
     }
