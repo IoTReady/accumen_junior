@@ -67,7 +67,7 @@ def validate_barcode(barcode):
     }
     res = requests.post(url, data=barcode, headers=headers)
     print(res.text)
-    return res.json()
+    return True
 
 
 def logout():
