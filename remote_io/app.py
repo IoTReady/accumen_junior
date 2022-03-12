@@ -18,7 +18,7 @@ config = {
     "ip": "192.168.10.2",
     "gateway": "10.10.20.1",
     "netmask": "255.255.255.0",
-    "base_url": "http://192.168.10.1:8000",
+    "base_url": "http://10.10.20.54:8000",
     "limitswitch": 36,
     "status_led_1": 2,
     "status_led_2": 12,
@@ -39,11 +39,6 @@ config = {
 }
 
 mac_address = "".join("{:02x}".format(d) for d in unique_id()).upper()
-
-gpio17 = Pin(17, Pin.OUT)
-gpio17.value(False)
-sleep_ms(500)
-gpio17 = Pin(17, Pin.IN)
 
 status_led_1 = Pin(int(config.get("status_led_1")), Pin.OUT)
 status_led_2 = Pin(int(config.get("status_led_2")), Pin.OUT)
@@ -83,12 +78,13 @@ limitswitch.irq(limitswitch_isr, trigger=Pin.IRQ_FALLING)
 
 
 def set_status_led(led: Pin, state: bool):
-    # Inverted logic
-    led.value(not state)
+    led.value(state)
 
 
 def sync_tray_led():
+    # Because our inputs are inverted. Low on limitswitch = closed => LED1 = OFF. High on limitswitch = open => LED1 = ON
     tray_status = limitswitch.value()
+    #print("tray_status", tray_status)
     set_status_led(status_led_1, tray_status)
 
 
@@ -231,10 +227,8 @@ def connect_lan():
     lan = network.LAN(
         mdc=Pin(23),
         mdio=Pin(18),
-        power=Pin(12),
         phy_type=network.PHY_LAN8720,
         phy_addr=0,
-        clock_mode=network.ETH_CLOCK_GPIO17_OUT,
     )
     # optionally, use static config
     # lan.ifconfig(config.get('ip'), config.get('gateway'), config.get('netmask'))
@@ -289,10 +283,10 @@ def trigger():
         and ticks_ms() - previous_trigger_ticks >= trigger_interval
     ):
         is_triggering = True
+        sync_tray_led()
         set_status_led(status_led_2, True)
         display_triggered()
-        url = "{}/trigger".format(config.get("base_url"))
-        print(url)
+        url = config.get("base_url")
         try:
             res = requests.post(url)
             print("res",res)
@@ -312,18 +306,14 @@ def trigger():
 def healthcheck():
     global is_connected
     try:
-        if check_ping():
-            if is_connected == False:
-                display_connected()
-                if not is_triggering:
-                    display_waiting()
-            # Post a request over HTTP
-            is_connected = True
-        else:
-            display_disconnected()
-            is_connected = False
-            # sleep_ms(2000)
-            # connect_lan()
+        url = config.get("base_url")
+        res = requests.get(url)
+        assert res.status_code == 200, "Disconnected"
+        if is_connected == False:
+            display_connected()
+            if not is_triggering:
+                display_waiting()
+        is_connected = True
     except Exception as e:
         display_disconnected()
         is_connected = False
@@ -345,6 +335,7 @@ def start():
         count = 0
         lcd.clear()
         lcd.backlight_on()
+        set_status_led(status_led_2, False)
         display_brandname()
         switch_on_neopixels()
         connect_lan()
@@ -360,7 +351,6 @@ def start():
             count += 1
             sync_tray_led()
             if count > 50:
-                print("GPIO17:", gpio17.value())
                 gc.collect()
                 print("D: Heap Memory: ", gc.mem_free())
                 count = 0
