@@ -5,19 +5,31 @@ Flow:
 - Start flask app to listen for triggers
 - 
 """
-import time
 import typer
 import uvicorn
-from os import path
+import semver
+from os import path, getcwd
 from camera.camera import initialise_camera, capture_optimised
 from api_client import validate_image
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
 
 cam = None
 stream = None
 exiting = False
+firmware_fname = "firmware.py"
+firmware_version = None
 
-
+try:
+    with open(firmware_fname, "r") as f:
+        for line in f.readlines():
+            if line.startswith("VERSION"):
+                firmware_version = line.strip().split("VERSION = ")[-1].replace('"','')
+                break
+    print("firmware_version", firmware_version)
+    assert firmware_version, "Invalid firmware version"
+except Exception as e:
+    print(str(e))
 
 app = FastAPI()
 
@@ -41,6 +53,20 @@ def trigger():
         fpath = path.join(fpath_for_api, fname)
         #validate_image(fpath)
         return ret
+
+@app.get("/ota")
+def check_ota(version: str):
+    print("Device firmware version:", version)
+    print("Current firmware version:", firmware_version)
+    if version and firmware_version and semver.compare(firmware_version, version) > 0:
+        return {"version": firmware_version, "fpath": f"/files/{firmware_fname}"} 
+    else:
+        return {}
+
+
+@app.get(f"/files/{firmware_fname}")
+def download_ota_file():
+    return FileResponse(path=getcwd() + "/" + firmware_fname, media_type='application/octet-stream', filename=firmware_fname)
 
 def main(
     device: int = 0,

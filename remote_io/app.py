@@ -2,13 +2,14 @@ import gc
 import urequests as requests
 import network
 import neopixel
-from machine import idle, SoftI2C, Pin, unique_id, reset, Timer
+from machine import SoftI2C, Pin, unique_id, reset, Timer
 from utime import sleep_ms, ticks_ms
 from esp32_i2c_lcd import I2cLcd
 from uping import ping
 
-VERSION = "0.1.0"
-
+# DO NOT CHANGE SPACING OR QUOTES IN THIS VERSION LINE 
+# OTA API RELIES ON THIS.
+VERSION = "1.0.2"
 lan = None
 
 is_connected = False
@@ -43,7 +44,7 @@ mac_address = "".join("{:02x}".format(d) for d in unique_id()).upper()
 status_led_1 = Pin(int(config.get("status_led_1")), Pin.OUT)
 status_led_2 = Pin(int(config.get("status_led_2")), Pin.OUT)
 neopixel_pin = Pin(int(config.get("neopixel")), Pin.OUT)
-limitswitch = Pin(int(config.get("limitswitch")), Pin.IN)
+limitswitch = Pin(int(config.get("limitswitch")), Pin.IN, Pin.PULL_UP)
 scl = Pin(int(config.get("i2c_scl")), Pin.OUT)
 sda = Pin(int(config.get("i2c_sda")), Pin.OUT)
 i2c = SoftI2C(scl=scl, sda=sda)
@@ -84,16 +85,17 @@ def set_status_led(led: Pin, state: bool):
 def sync_tray_led():
     # Because our inputs are inverted. Low on limitswitch = closed => LED1 = OFF. High on limitswitch = open => LED1 = ON
     tray_status = limitswitch.value()
-    #print("tray_status", tray_status)
     set_status_led(status_led_1, tray_status)
 
 
 def switch_off_neopixels():
     neopixel_array.fill((0, 0, 0))
+    neopixel_array.write()
 
 
 def switch_on_neopixels():
     switch_off_neopixels()
+    sleep_ms(500)
     positions = [0, 1, 2, 14, 15, 16, 28, 29, 30, 42, 43, 44]
     for i in positions:
         neopixel_array[i] = (255, 255, 220)
@@ -236,7 +238,17 @@ def connect_lan():
     sleep_ms(10000)
 
 
-def download_ota():
+def check_ota():
+    base_url = config.get("base_url")
+    url = "{}/ota?version={}".format(base_url,VERSION)
+    res = requests.get(url)
+    print("D: ",res.text)
+    data = res.json()
+    if data.get("version"):
+        fpath = data["fpath"]
+        download_ota(fpath)
+
+def download_ota(fpath="/files/firmware.py"):
     print("W: Starting OTA")
     backup_app()
     gc.collect()
@@ -246,30 +258,23 @@ def download_ota():
     gc.collect()
     display_ota_updating()
     base_url = config.get("base_url")
-    url = "{}/app.py".format(base_url)
+    url = "{}{}".format(base_url, fpath)
     res = requests.get(url)
     if res.status_code != 200 or not res.content:
         display_ota_error()
         return False
     with open("app.py", "wb") as f:
         f.write(res.content)
+    sleep_ms(1000)
     clear_status_rows()
     print("W: OTA Completed")
+    reset()
     return True
 
 
 def check_ping():
     result = ping(config.get("gateway"), timeout=100, quiet=True, count=2)
     return result[1] > 0
-
-
-def set_clock():
-    from ntptime import settime
-
-    try:
-        settime()
-    except Exception as e:
-        print("E:", str(e))
 
 
 def trigger():
@@ -282,6 +287,7 @@ def trigger():
         and is_connected
         and ticks_ms() - previous_trigger_ticks >= trigger_interval
     ):
+        print("D: Triggered: ", ticks_ms())
         is_triggering = True
         sync_tray_led()
         set_status_led(status_led_2, True)
@@ -289,7 +295,7 @@ def trigger():
         url = config.get("base_url")
         try:
             res = requests.post(url)
-            print("res",res)
+            print("D: trigger result:",res.text)
             sleep_ms(1000)
             assert res.status_code == 200, "Capture Error"
             display_captured()
@@ -339,10 +345,10 @@ def start():
         display_brandname()
         switch_on_neopixels()
         connect_lan()
-        set_clock()
         gc.collect()
         healthcheck()
         if is_connected:
+            check_ota()
             display_waiting()
         print("D: Heap Memory: ", gc.mem_free())
         print("I: Ready!")
