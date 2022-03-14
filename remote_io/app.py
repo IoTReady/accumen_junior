@@ -1,4 +1,5 @@
 import gc
+import json
 import urequests as requests
 import network
 import neopixel
@@ -7,9 +8,9 @@ from utime import sleep_ms, ticks_ms
 from esp32_i2c_lcd import I2cLcd
 from uping import ping
 
-# DO NOT CHANGE SPACING OR QUOTES IN THIS VERSION LINE 
+# DO NOT CHANGE SPACING OR QUOTES IN THIS VERSION LINE
 # OTA API RELIES ON THIS.
-VERSION = "1.0.2"
+VERSION = "1.1.5"
 lan = None
 
 is_connected = False
@@ -65,6 +66,24 @@ neopixel_array = neopixel.NeoPixel(neopixel_pin, config.get("num_pixels"))
 last_interrupt_time = 0
 previous_trigger_ticks = 0
 trigger_interval = 1000
+
+LOG_LEVELS = {"info": "I:", "debug": "D:", "warn": "W:", "error": "E:"}
+
+
+def logprint(level, text):
+    prefix = LOG_LEVELS.get(level) or "D:"
+    print(prefix, text)
+    # text = text.replace(" ", "_")
+    try:
+        base_url = config.get("base_url")
+        # url = "{}/log?level={}&text=\"{}\"".format(base_url, level, text)
+        url = "{}/log".format(base_url)
+        payload = {"level": level, "text": text}
+        headers = {"Content-Type": "application/json", "Accept": "application/json"}
+        res = requests.post(url, data=json.dumps(payload), headers=headers)
+        # print("D:", res.text)
+    except Exception as e:
+        print("E:", str(e))
 
 
 def limitswitch_isr(pin: Pin):
@@ -208,7 +227,6 @@ def display_disconnected():
     lcd.move_to(0, row)
     lcd.putstr("Check PC Connection")
     gc.collect()
-    # print("D: Heap Memory: ", gc.mem_free())
 
 
 # End display functions
@@ -240,20 +258,21 @@ def connect_lan():
 
 def check_ota():
     base_url = config.get("base_url")
-    url = "{}/ota?version={}".format(base_url,VERSION)
+    url = "{}/ota?version={}".format(base_url, VERSION)
     res = requests.get(url)
-    print("D: ",res.text)
+    logprint("debug", res.text)
     data = res.json()
     if data.get("version"):
         fpath = data["fpath"]
         download_ota(fpath)
 
+
 def download_ota(fpath="/files/firmware.py"):
-    print("W: Starting OTA")
+    logprint("warning", "Starting OTA")
     backup_app()
     gc.collect()
     if not check_ping():
-        print("I: Connecting to LAN")
+        logprint("info", "Connecting to LAN")
         connect_lan()
     gc.collect()
     display_ota_updating()
@@ -267,7 +286,7 @@ def download_ota(fpath="/files/firmware.py"):
         f.write(res.content)
     sleep_ms(1000)
     clear_status_rows()
-    print("W: OTA Completed")
+    logprint("warning", "OTA Completed")
     reset()
     return True
 
@@ -287,7 +306,7 @@ def trigger():
         and is_connected
         and ticks_ms() - previous_trigger_ticks >= trigger_interval
     ):
-        print("D: Triggered: ", ticks_ms())
+        logprint("debug", "Triggered: " + str(ticks_ms()))
         is_triggering = True
         sync_tray_led()
         set_status_led(status_led_2, True)
@@ -295,12 +314,12 @@ def trigger():
         url = config.get("base_url")
         try:
             res = requests.post(url)
-            print("D: trigger result:",res.text)
+            logprint("debug", "Trigger result: " + res.text)
             sleep_ms(1000)
             assert res.status_code == 200, "Capture Error"
             display_captured()
         except Exception as e:
-            print(str(e))
+            logprint("error", str(e))
             display_error()
         sleep_ms(2000)
         display_waiting()
@@ -323,7 +342,7 @@ def healthcheck():
     except Exception as e:
         display_disconnected()
         is_connected = False
-        print("E: healthcheck:", str(e))
+        logprint("error", "Healthcheck:" + str(e))
     gc.collect()
 
 
@@ -336,7 +355,7 @@ timer1.init(
 
 
 def start():
-    print("Starting app", __name__)
+    print("I:", "Starting app: " + __name__)
     try:
         count = 0
         lcd.clear()
@@ -350,19 +369,19 @@ def start():
         if is_connected:
             check_ota()
             display_waiting()
-        print("D: Heap Memory: ", gc.mem_free())
-        print("I: Ready!")
-        print("I: App Version: ", VERSION)
+        logprint("debug", "Heap Memory: " + str(gc.mem_free()))
+        logprint("info", "Ready!")
+        logprint("info", "App Version: " + VERSION)
         while True:
             count += 1
             sync_tray_led()
             if count > 50:
                 gc.collect()
-                print("D: Heap Memory: ", gc.mem_free())
+                logprint("debug", "Heap Memory: " + str(gc.mem_free()))
                 count = 0
             sleep_ms(int(config.get("main_loop_delay_ms")))
     except Exception as e:
-        print("E:", str(e))
+        logprint("error", str(e))
         set_status_led(status_led_1, False)
         set_status_led(status_led_2, False)
         switch_off_neopixels()
