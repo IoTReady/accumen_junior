@@ -2,5 +2,4 @@
 
 full_path=$(realpath $0)
 dir_path=$(dirname $full_path)
-source $dir_path/venv/bin/activate
-$dir_path/venv/bin/python $dir_path/app.py --device 0 --path /home/ccmsadmin/workspace/original_image
+$dir_path/camera.bin --device 0 --path /home/ccmsadmin/workspace/original_image
