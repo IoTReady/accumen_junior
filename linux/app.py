@@ -6,15 +6,13 @@ Flow:
 - 
 """
 import logging
+import json
 import typer
-import uvicorn
+import flask
 import semver
 from os import path, getcwd
-from pydantic import BaseModel
 from camera.camera import initialise_camera, capture_optimised
 from api_client import validate_image
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
 
 cam = None
 stream = None
@@ -32,11 +30,6 @@ LOG_LEVELS = {
 }
 
 
-class Log(BaseModel):
-    level: str
-    text: str
-
-
 try:
     with open(firmware_fname, "r") as f:
         for line in f.readlines():
@@ -48,7 +41,7 @@ try:
 except Exception as e:
     print(str(e))
 
-app = FastAPI()
+app = flask.Flask(__name__)
 
 
 @app.get("/")
@@ -61,21 +54,20 @@ def trigger():
     # The AIRA API expects a path wrt to the Docker container so we need to remap.
     fpath_for_api = "/mnt/original_image/"
     print("Triggered")
-    # Trigger Status: 0 = In Progress; 1 = Done; 2 = Error
     ret = capture_optimised(cam, stream)
     if ret.get("error"):
-        print(ret)
-        raise Exception("Capture error")
+        return flask.Response(json.dumps(ret), status = 503, mimetype='application/json')
     else:
         print("Captured:", ret)
         fname = path.basename(ret.get("path"))
         fpath = path.join(fpath_for_api, fname)
         validate_image(fpath)
-        return ret
+        return flask.Response(json.dumps(ret), status = 200, mimetype='application/json')
 
 
 @app.get("/ota")
-def check_ota(version: str):
+def check_ota():
+    version = flask.request.args.get('version')
     print("Device firmware version:", version)
     print("Current firmware version:", firmware_version)
     if version and firmware_version and semver.compare(firmware_version, version) > 0:
@@ -86,24 +78,26 @@ def check_ota(version: str):
 
 @app.get(f"/files/{firmware_fname}")
 def download_ota_file():
-    return FileResponse(
-        path=getcwd() + "/" + firmware_fname,
-        media_type="application/octet-stream",
-        filename=firmware_fname,
+    return flask.send_file(
+        path_or_file=getcwd() + "/" + firmware_fname,
+        mimetype="application/octet-stream",
     )
 
 
 @app.post("/log")
-def firmware_log(item: Log):
-    f = LOG_LEVELS.get(item.level) or log.debug
-    f("FW: " + item.text)
-    return True
+def firmware_log():
+    item = flask.request.json
+    f = LOG_LEVELS.get(item.get('level')) or log.debug
+    f("FW: " + item.get('text'))
+    return {"ok": True}
 
 
 def main(
     device: int = 0,
     path: str = "/tmp",
     logfile: str = "accumen_junior.log",
+    host: str = "0.0.0.0",
+    port: int = 8000
 ):
     global cam
     global stream
@@ -114,7 +108,7 @@ def main(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     cam, stream = initialise_camera(device=device, path=path)
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    app.run(host=host, port=port, debug=False)
     stream.close()
     cam.close()
 

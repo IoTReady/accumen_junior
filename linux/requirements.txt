@@ -1,5 +1,4 @@
-fastapi
-uvicorn[standard]
+flask
 typer
 evdev
 Pillow==8.4.0
