@@ -10,7 +10,7 @@ from uping import ping
 
 # DO NOT CHANGE SPACING OR QUOTES IN THIS VERSION LINE
 # OTA API RELIES ON THIS.
-VERSION = "1.1.5"
+VERSION = "1.1.7"
 lan = None
 
 is_connected = False
@@ -18,9 +18,9 @@ is_triggering = False
 
 config = {
     "ip": "192.168.10.2",
-    "gateway": "10.10.20.1",
+    "gateway": "192.168.10.1",
     "netmask": "255.255.255.0",
-    "base_url": "http://10.10.20.54:8000",
+    "base_url": "http://192.168.10.1:8000",
     "limitswitch": 36,
     "status_led_1": 2,
     "status_led_2": 12,
@@ -37,7 +37,7 @@ config = {
     "status_row_1": 1,
     "status_row_2": 2,
     "status_row_3": 3,
-    "healthcheck_interval": 30,
+    "healthcheck_interval": 5,
 }
 
 mac_address = "".join("{:02x}".format(d) for d in unique_id()).upper()
@@ -73,10 +73,8 @@ LOG_LEVELS = {"info": "I:", "debug": "D:", "warn": "W:", "error": "E:"}
 def logprint(level, text):
     prefix = LOG_LEVELS.get(level) or "D:"
     print(prefix, text)
-    # text = text.replace(" ", "_")
     try:
         base_url = config.get("base_url")
-        # url = "{}/log?level={}&text=\"{}\"".format(base_url, level, text)
         url = "{}/log".format(base_url)
         payload = {"level": level, "text": text}
         headers = {"Content-Type": "application/json", "Accept": "application/json"}
@@ -329,6 +327,8 @@ def trigger():
 
 
 def healthcheck():
+    if is_triggering:
+        return False
     global is_connected
     try:
         url = config.get("base_url")
