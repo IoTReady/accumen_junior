@@ -9,7 +9,7 @@
 #!/bin/bash
 
 echo -e "Updating system and installing dependencies"
-sudo apt update && sudo apt upgrade -y && sudo apt install -y redis git python3-venv python3-pip imagemagick guvcview fswebcam net-tools wget vim v4l-utils dnsmasq
+sudo apt update && sudo apt upgrade -y && sudo apt install -y git python3-venv python3-pip imagemagick guvcview fswebcam net-tools wget vim v4l-utils dnsmasq
 
 echo -e "Copying ssh keys"
 mkdir ~/.ssh
@@ -28,7 +28,6 @@ read response
 
 echo -e "Copying configuration scripts"
 cd accumen_junior/conf/
-sudo cp redis.conf /etc/redis/redis.conf
 sudo cp dnsmasq.conf /etc/dnsmasq.conf
 sudo cp accumen.service /etc/systemd/system/
 sudo cp accumen.sh /usr/local/bin/

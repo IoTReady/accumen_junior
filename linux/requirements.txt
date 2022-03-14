@@ -1,6 +1,5 @@
 fastapi
 uvicorn[standard]
-redis
 typer
 evdev
 Pillow==8.4.0

@@ -9,7 +9,6 @@
 import time
 import asyncio
 import evdev
-import redis
 import requests
 
 # Change this if not using a Zebra/Symbol/Motorola scanner.
@@ -17,14 +16,6 @@ DEVICE_PREFIX = "Symbol Technologies, Inc, 2008 Symbol Bar Code Scanner::EA"
 ENTER_KEYCODE = 28
 TAB_KEYCODE = 15
 SHIFT_KEYCODES = [42, 54]
-
-
-# Redis connection params
-g_redis_host = '192.168.10.1'
-g_redis_port = 6379
-g_redis = None
-channel = 'barcode'
-
 
 # The map below translates evdev event codes to ASCII
 # First value in array is ASCII without shift, second value is with shift
@@ -90,19 +81,6 @@ key_map = {
 }
 
 
-def open_redis():
-    global g_redis
-    # Open redis connection
-    g_redis = redis.Redis(host=g_redis_host, port=g_redis_port, db=0)
-    try:
-        # Check if redis is running, if not we call this recursively
-        g_redis.ping()
-        return True
-    except:
-        time.sleep(1)
-        return open_redis()
-
-
 def find_scanners():
     """
     Returns a list of opened evdev devices whose name begins with prefix. 
@@ -119,17 +97,12 @@ def dispatch_barcode(barcode):
     # Use the barcode here by sending to an API or updating it in a shared state dictionary
     print(f"Scanned: {barcode} of type {type(barcode)}")
     try:
-        # g_redis.publish(channel, barcode)
-        # g_redis.set("barcode", barcode, 5)
         url = "http://192.168.10.1:9099/ccms/validate/barcode"
         res = requests.post(url, data=barcode)
         print("Published!", res.text)
-    except:
-        time.sleep(1)
-        open_redis()
-        # open_redis can take an indeterminate amount of time
-        # Should we publish again or ignore since barcode scanning needs to be synchronous?
-        g_redis.publish(channel, barcode)
+    except Exception as e:
+        print(str(e))
+
 
 async def read_scanner(scanner):
     """
@@ -169,7 +142,6 @@ def read_all_scanners():
     """
     scanners = find_scanners()
     if len(scanners) > 0:
-        open_redis()
         for scanner in scanners:
             # asyncio.run(read_scanner(scanner))
             asyncio.ensure_future(read_scanner(scanner))

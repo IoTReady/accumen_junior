@@ -70,7 +70,7 @@ def trigger():
         print("Captured:", ret)
         fname = path.basename(ret.get("path"))
         fpath = path.join(fpath_for_api, fname)
-        # validate_image(fpath)
+        validate_image(fpath)
         return ret
 
 
