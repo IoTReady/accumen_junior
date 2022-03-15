@@ -79,7 +79,7 @@ def check_ota():
 @app.get(f"/files/{firmware_fname}")
 def download_ota_file():
     return flask.send_file(
-        path_or_file=getcwd() + "/" + firmware_fname,
+        path_or_file="/tmp/" + firmware_fname,
         mimetype="application/octet-stream",
     )
 

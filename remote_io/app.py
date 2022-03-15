@@ -10,7 +10,7 @@ from uping import ping
 
 # DO NOT CHANGE SPACING OR QUOTES IN THIS VERSION LINE
 # OTA API RELIES ON THIS.
-VERSION = "1.1.7"
+VERSION = "1.1.8"
 lan = None
 
 is_connected = False
@@ -346,12 +346,6 @@ def healthcheck():
     gc.collect()
 
 
-timer1 = Timer(1)
-timer1.init(
-    period=config.get("healthcheck_interval") * 1000,
-    mode=Timer.PERIODIC,
-    callback=lambda t: healthcheck(),
-)
 
 
 def start():
@@ -370,6 +364,12 @@ def start():
             check_ota()
             display_waiting()
         logprint("debug", "Heap Memory: " + str(gc.mem_free()))
+        timer1 = Timer(1)
+        timer1.init(
+            period=config.get("healthcheck_interval") * 1000,
+            mode=Timer.PERIODIC,
+            callback=lambda t: healthcheck(),
+        )
         logprint("info", "Ready!")
         logprint("info", "App Version: " + VERSION)
         while True:
