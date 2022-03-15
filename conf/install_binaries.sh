@@ -20,3 +20,7 @@ sudo cp camera.sh /usr/local/bin/
 sudo cp camera.service /etc/systemd/system/
 sudo systemctl enable camera.service
 
+
+sudo gpasswd -a ccmsadmin dialout
+sudo gpasswd -a ccmsadmin uucp 
+sudo gpasswd -a ccmsadmin video
