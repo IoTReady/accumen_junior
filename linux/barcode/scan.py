@@ -145,6 +145,7 @@ def read_all_scanners():
         for scanner in scanners:
             # asyncio.run(read_scanner(scanner))
             asyncio.ensure_future(read_scanner(scanner))
+        print("Started Barcode Scanner")
         loop = asyncio.get_event_loop()
         loop.run_forever()
     else:
@@ -152,4 +153,6 @@ def read_all_scanners():
 
 
 if __name__ == "__main__":
+    # Add a sleep to ensure the Systemd Service stays alive
+    time.sleep(5)
     read_all_scanners()
