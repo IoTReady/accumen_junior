@@ -10,6 +10,6 @@ fswebcam -D 3 -S 2 -r 3264x2448 -F 3
 
 # Start Camera API
 echo "Starting Camera API"
-$BASEDIR/camera.bin 
+$BASEDIR/camera.bin --device 0 --path /home/ccmsadmin/workspace/original_image
 
 
