@@ -4,7 +4,7 @@ sudo systemctl disable accumen.service
 sudo rm /etc/systemd/system/accumen.service
 sudo rm /usr/local/bin/accumen.sh
 
-sudo cp interface /etc/network/
+sudo cp interfaces /etc/network/
 
 sudo apt install -y wget python3-pip
 sudo pip3 install adafruit-ampy esptool
