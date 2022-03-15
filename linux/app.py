@@ -31,7 +31,7 @@ LOG_LEVELS = {
 
 
 try:
-    with open(firmware_fname, "r") as f:
+    with open("/tmp/"+firmware_fname, "r") as f:
         for line in f.readlines():
             if line.startswith("VERSION"):
                 firmware_version = line.strip().split("VERSION = ")[-1].replace('"', "")
