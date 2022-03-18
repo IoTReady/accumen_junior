@@ -4,7 +4,8 @@ from io import BytesIO
 from datetime import datetime
 from subprocess import call
 from PIL import Image, ImageStat
-from .v4l2py import Device
+#from .v4l2py import Device
+from v4l2py.device import Device, iter_video_capture_devices 
 
 log = logging.getLogger(__name__)
 
@@ -249,7 +250,13 @@ def initialise_camera(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     print("Starting Camera")
-    cam = Device.from_id(device)
+    try:
+        cam = Device.from_id(device)
+    except Exception as e:
+        print(str(e))
+        devices = list(iter_video_capture_devices())
+        assert len(devices) > 0, "Camera not found"
+        cam = devices[0]
     # Camera is now open and locked.
     # And it's held open until we close it
     cam.video_capture.set_format(width, height, "MJPG")
@@ -265,5 +272,12 @@ def initialise_camera(
 
 
 if __name__ == "__main__":
-    cam,stream = initialise_camera()
+    import sys
+    if len(sys.argv) > 2:
+        # test: python camera.py 3 /tmp
+        # feeding the wrong device ID will cause auto-detection
+        cam,stream = initialise_camera(device=int(sys.argv[1]), path=sys.argv[2])
+    else:
+        cam,stream = initialise_camera()
     capture_optimised(cam, stream)
+
