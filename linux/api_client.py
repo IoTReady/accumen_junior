@@ -47,7 +47,7 @@ def validate_image(image_path, barcode=None):
         "barcode": barcode,
         "imagePath": image_path,
         "hardwareType": "Junior",
-        "hardwareId": getmac.get_mac_address(),
+        "hardwareId": getmac.get_mac_address(interface="eno1").upper(),
         "userId": username,
     }
     url = "http://localhost:9099/ccms/validate/image"
