@@ -2,11 +2,16 @@ import json
 import requests
 import getmac
 from time import sleep
+from os import environ
 
 base_url = "http://192.168.10.1"
 username = "B12345"
 password = "Callme@11"
 
+try:
+    interface = environ.get('INTERFACE')
+except:
+    interface = 'eno1'
 
 def login():
     url = f"{base_url}:9090/CCMS/auth/login"
@@ -47,7 +52,7 @@ def validate_image(image_path, barcode=None):
         "barcode": barcode,
         "imagePath": image_path,
         "hardwareType": "Junior",
-        "hardwareId": getmac.get_mac_address(interface="eno1").upper(),
+        "hardwareId": getmac.get_mac_address(interface=interface).upper(),
         "userId": username,
     }
     url = "http://localhost:9099/ccms/validate/image"
@@ -103,8 +108,10 @@ def refresh_token():
 
 
 if __name__ == "__main__":
-    res = logout()
-    barcode = "bar_2802_02"
-    res = validate_barcode(barcode)
+    #res = logout()
+    #barcode = "bar_2802_02"
+    #res = validate_barcode(barcode)
     # res = refresh_token()
-    print(res)
+    #print(res)
+    mac = getmac.get_mac_address(interface=interface).upper()
+    print(mac)
