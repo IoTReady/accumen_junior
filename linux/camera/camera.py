@@ -4,8 +4,10 @@ from io import BytesIO
 from datetime import datetime
 from subprocess import call
 from PIL import Image, ImageStat
-#from .v4l2py import Device
-from v4l2py.device import Device, iter_video_capture_devices 
+try:
+    from .v4l2py.device import Device, iter_video_capture_devices 
+except:
+    from v4l2py.device import Device, iter_video_capture_devices 
 
 log = logging.getLogger(__name__)
 
