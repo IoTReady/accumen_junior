@@ -10,6 +10,7 @@ password = "Callme@11"
 
 try:
     interface = environ.get('INTERFACE')
+    assert interface != None, "Not set"
 except:
     interface = 'eno1'
 
