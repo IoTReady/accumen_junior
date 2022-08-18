@@ -55,6 +55,7 @@ def validate_image(image_path, barcode=None):
         "hardwareId": getmac.get_mac_address(interface=interface).upper(),
         "userId": username,
     }
+    print("validate_image req", req)
     url = "http://localhost:9099/ccms/validate/image"
     res = requests.post(url, data=json.dumps(req), headers=headers)
     print(res.text)
@@ -115,3 +116,6 @@ if __name__ == "__main__":
     #print(res)
     mac = getmac.get_mac_address(interface=interface).upper()
     print(mac)
+    get_access_token()
+    validate_image("/dummy/image", barcode=None)
+
