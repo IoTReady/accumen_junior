@@ -52,15 +52,16 @@ async def healthcheck():
 @app.post("/")
 def trigger():
     # The AIRA API expects a path wrt to the Docker container so we need to remap.
-    fpath_for_api = "/mnt/original_image/"
+    # fpath_for_api = "/mnt/original_image/"
     print("Triggered")
     ret = capture_optimised(cam, stream)
     if ret.get("error"):
         return flask.Response(json.dumps(ret), status = 503, mimetype='application/json')
     else:
         print("Captured:", ret)
-        fname = path.basename(ret.get("path"))
-        fpath = path.join(fpath_for_api, fname)
+        # fname = path.basename(ret.get("path"))
+        # fpath = path.join(fpath_for_api, fname)
+        fpath = ret.get("path")
         validate_image(fpath)
         return flask.Response(json.dumps(ret), status = 200, mimetype='application/json')
 
