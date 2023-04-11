@@ -13,6 +13,7 @@ import semver
 from os import path, getcwd
 from camera.camera import initialise_camera, capture_optimised
 from api_client import validate_image
+from mdns import init_service
 
 cam = None
 stream = None
@@ -31,7 +32,7 @@ LOG_LEVELS = {
 
 
 try:
-    with open("/tmp/"+firmware_fname, "r") as f:
+    with open("/tmp/" + firmware_fname, "r") as f:
         for line in f.readlines():
             if line.startswith("VERSION"):
                 firmware_version = line.strip().split("VERSION = ")[-1].replace('"', "")
@@ -56,19 +57,19 @@ def trigger():
     print("Triggered")
     ret = capture_optimised(cam, stream)
     if ret.get("error"):
-        return flask.Response(json.dumps(ret), status = 503, mimetype='application/json')
+        return flask.Response(json.dumps(ret), status=503, mimetype="application/json")
     else:
         print("Captured:", ret)
         # fname = path.basename(ret.get("path"))
         # fpath = path.join(fpath_for_api, fname)
         fpath = ret.get("path")
         validate_image(fpath)
-        return flask.Response(json.dumps(ret), status = 200, mimetype='application/json')
+        return flask.Response(json.dumps(ret), status=200, mimetype="application/json")
 
 
 @app.get("/ota")
 def check_ota():
-    version = flask.request.args.get('version')
+    version = flask.request.args.get("version")
     print("Device firmware version:", version)
     print("Current firmware version:", firmware_version)
     if version and firmware_version and semver.compare(firmware_version, version) > 0:
@@ -85,11 +86,13 @@ def download_ota_file():
     )
 
 
+@app.post("/logs")
 @app.post("/log")
 def firmware_log():
     item = flask.request.json
-    f = LOG_LEVELS.get(item.get('level')) or log.debug
-    f("FW: " + item.get('text'))
+    if item:
+        f = LOG_LEVELS.get(item.get("level")) or log.debug
+        f("FW: " + item.get("text"))
     return {"ok": True}
 
 
@@ -98,7 +101,7 @@ def main(
     path: str = "/tmp",
     logfile: str = "accumen_junior.log",
     host: str = "0.0.0.0",
-    port: int = 8000
+    port: int = 8000,
 ):
     global cam
     global stream
@@ -108,10 +111,11 @@ def main(
         filename=logfile,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    cam, stream = initialise_camera(device=device, path=path)
+    # cam, stream = initialise_camera(device=device, path=path)
+    init_service(host, port)
     app.run(host=host, port=port, debug=False)
-    stream.close()
-    cam.close()
+    # stream.close()
+    # cam.close()
 
 
 if __name__ == "__main__":
