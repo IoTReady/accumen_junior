@@ -1,4 +1,5 @@
 flask
+flask[async]
 typer
 evdev
 Pillow==8.4.0

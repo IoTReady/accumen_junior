@@ -92,7 +92,7 @@ def firmware_log():
     item = flask.request.json
     if item:
         f = LOG_LEVELS.get(item.get("level")) or log.debug
-        f("FW: " + item.get("text"))
+        f("FW: " + item.get("text") or "")
     return {"ok": True}
 
 
@@ -111,11 +111,14 @@ def main(
         filename=logfile,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    # cam, stream = initialise_camera(device=device, path=path)
-    init_service(host, port)
+    cam, stream = initialise_camera(device=device, path=path)
+    try:
+        init_service(host, port)
+    except Exception as e:
+        print("Exception in mdns.init_service:", str(e))
     app.run(host=host, port=port, debug=False)
-    # stream.close()
-    # cam.close()
+    stream.close()
+    cam.close()
 
 
 if __name__ == "__main__":
