@@ -1,2 +1,4 @@
 #!/bin/bash
-python -m nuitka --plugin-enable=pylint-warnings --plugin-enable=numpy --plugin-enable=pkg-resources --onefile --linux-onefile-icon=icon.png barcode/scan.py -o barcode.bin
+commit_hash=`git rev-parse --short=7 HEAD`
+echo $commit_hash
+python -m nuitka --plugin-enable=pylint-warnings --onefile --linux-onefile-icon=icon.png barcode/scan.py -o "barcode_$commit_hash.bin"
