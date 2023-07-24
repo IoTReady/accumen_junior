@@ -260,6 +260,9 @@ class VideoCapture:
     def set_contrast(self, value):
         self.set_ctrl(raw.V4L2_CID_CONTRAST, value)
 
+    def set_brightness(self, value):
+        self.set_ctrl(raw.V4L2_CID_BRIGHTNESS, value)
+
     def set_format(self, width, height, pixel_format="MJPG"):
         f = raw.v4l2_format()
         if isinstance(pixel_format, str):

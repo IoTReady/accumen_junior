@@ -59,7 +59,8 @@ g_contrast_control_min = 32
 g_contrast_control_max = 48
 g_contrast_control_step = 2
 
-g_max_attempts = 50
+g_max_attempts = 1
+g_brightness_control = 0
 
 
 
@@ -135,6 +136,7 @@ def main(
     port: int = 8000,
     skip: int = 2,
     max_attempts: int = g_max_attempts,
+    brightness_control: int = g_brightness_control,
     brightness_optimal: int = g_brightness_optimal,
     brightness_diff: int = g_brightness_diff,
     enable_single_color_rejection: bool = g_enable_single_color_rejection,
@@ -167,6 +169,7 @@ def main(
         path=path,
         skip=skip,
         max_attempts=max_attempts,
+        brightness_control=brightness_control,
         brightness_optimal=brightness_optimal,
         brightness_diff=brightness_diff,
         enable_single_color_rejection=enable_single_color_rejection,

@@ -24,7 +24,7 @@ g_enable_contrast_optimisation = True
 
 g_brightness_optimal = 37
 g_brightness_diff = 2
-g_exposure_auto = False
+g_exposure_auto = True
 g_exposure_absolute = 300
 g_exposure_absolute_min = 25
 g_exposure_absolute_max = 1000
@@ -44,7 +44,8 @@ g_contrast_control_min = 32
 g_contrast_control_max = 48
 g_contrast_control_step = 2
 
-g_max_attempts = 50
+g_max_attempts = 1
+g_brightness_control = 0
 
 
 def estimate_brightness(img):
@@ -92,8 +93,9 @@ def calc_optimal_exposure(cam, stream):
 
 
 def capture_and_calculate(cam,stream):
-    cam.video_capture.set_exposure(g_exposure_absolute)
-    cam.video_capture.set_contrast(g_contrast_control)
+    cam.video_capture.set_brightness(g_brightness_control)
+    # cam.video_capture.set_exposure(g_exposure_absolute)
+    # cam.video_capture.set_contrast(g_contrast_control)
     # Skip one frame
     next(stream)
     image_bytes = BytesIO(next(stream))
@@ -181,6 +183,7 @@ def initialise_camera(
         yoffset: int = g_yoffset,
         skip: int = 2,
         max_attempts: int = g_max_attempts,
+        brightness_control: int = g_brightness_control,
         brightness_optimal: int = g_brightness_optimal,
         brightness_diff: int = g_brightness_diff,
         enable_single_color_rejection: bool = g_enable_single_color_rejection,
@@ -222,6 +225,7 @@ def initialise_camera(
     global g_exposure_absolute_step
     global g_exposure_auto
     global g_max_attempts
+    global g_brightness_control
     #global cam
     #global stream
     g_xoffset = xoffset
@@ -237,6 +241,7 @@ def initialise_camera(
     g_contrast_control_min = contrast_control_min
     g_contrast_control_max = contrast_control_max
     g_contrast_control_step = contrast_control_step
+    g_brightness_control = brightness_control
     g_brightness_optimal = brightness_optimal
     g_brightness_diff = brightness_diff
     g_exposure_auto = exposure_auto
