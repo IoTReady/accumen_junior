@@ -1,5 +1,6 @@
 flask
 flask[async]
+asgiref
 typer
 evdev
 Pillow==8.4.0
