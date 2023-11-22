@@ -207,7 +207,7 @@ def initialise_camera(
     global g_path
     global g_xoffset
     global g_yoffset
-    global g_enable_single_color_rejection
+    global g_enable_single_color_rejection     #seek
     global g_enable_brightness_optimisation
     global g_enable_hue_optimisation
     global g_enable_contrast_optimisation
