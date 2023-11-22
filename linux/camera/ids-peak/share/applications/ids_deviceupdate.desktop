@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Name=ids_deviceupdate
+Comment=Run ids_deviceupdate for the selected guf file
+Exec=bash -c 'ids_deviceupdate --guf "%f" --update-latest --force;\\$SHELL'
+Icon=ids-guf
+Terminal=true
+Type=Application
+NoDisplay=true
+MimeType=application/x-ids-guf-firmware
+Categories=Utility;ConsoleOnly

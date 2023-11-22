@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.2 FATAL_ERROR)
+project (samples_c)
+
+add_subdirectory(walkthrough)
+add_subdirectory(simple_live_qtwidgets)
+add_subdirectory(configure_camera_gfa)
+add_subdirectory(trigger_live_qtwidgets)
+add_subdirectory(ipl_features_live_qtwidgets)
+add_subdirectory(record_video)
+add_subdirectory(inference)
+add_subdirectory(message_queue)
+add_subdirectory(i2c)

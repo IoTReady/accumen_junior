@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* </c>
+<c>* Simple example for grabbing images via the 'GenICamTL' interface</c>
+<c>* Simple live image acquisition </c>
+<c>*    * in continious mode</c>
+<c>*    * with image improvements by setting</c>
+<c>*         * a nice gamma value</c>
+<c>*         * calculating automatically the exposure in continious mode</c>
+<c>*         * calculating automatically the gain value in continious mode</c>
+<c></c>
+<l>producer_interface := 'GenICamTL'</l>
+<c></c>
+<c>* To run the example with the Halcon specific TLs, please choose </c>
+<c>* 'GigEVision2' 'USB3Vision' as producer_interface </c>
+<l>* producer_interface := 'GigEVision2'</l>
+<l>* producer_interface := 'USB3Vision'</l>
+<c></c>
+<c>* check interface revision:</c>
+<l>info_framegrabber (producer_interface, 'revision', RevInfo, RevInfoValues)</l>
+<c></c>
+<c>* </c>
+<c>* check your installed cameras:</c>
+<l>info_framegrabber (producer_interface, 'info_boards', BoardsInfo, BoardsInfoValues)</l>
+<c></c>
+<c>* </c>
+<c>* open first available camera with default settings and raw format:</c>
+<l>tuple_length(BoardsInfoValues, NumberOfDevices)</l>
+<l>if (NumberOfDevices == 0)</l>
+<c>    * No devices are connected</c>
+<l>    stop()</l>
+<l>    return()</l>
+<l>endif</l>
+<l>open_framegrabber (producer_interface, 1, 1, 0, 0, 0, 0, 'default', -1, 'raw', -1, 'false', 'default', BoardsInfoValues[0], 0, -1, AcqHandle)</l>
+<c></c>
+<c>*</c>
+<c>* Get available features of the camera</c>
+<l>get_framegrabber_param (AcqHandle, 'available_param_names', AvailableParamNames)</l>
+<l>get_framegrabber_param(AcqHandle, 'TriggerSelector_values', TriggerSelectorValues)</l>
+<c></c>
+<c>* For IDS GEV Cameras it is recommended to switch on the IDS GEV PendingACK Feature</c>
+<l>tuple_regexp_test (AvailableParamNames, 'GevGVCPPendingAck', NumMatches)</l>
+<l>if (NumMatches)</l>
+<l>    set_framegrabber_param(AcqHandle,'GevGVCPPendingAck',1)</l>
+<l>endif</l>
+<c></c>
+<c>*</c>
+<c>* get width and height format of the camera and </c>
+<c>* open a black window with the half size of the original values</c>
+<l>get_framegrabber_param (AcqHandle, 'image_width', Width)</l>
+<l>get_framegrabber_param (AcqHandle, 'image_height', Height)</l>
+<l>dev_close_window ()</l>
+<l>dev_open_window (0, 0, Width / 2, Height / 2, 'black', WindowID)</l>
+<c></c>
+<c>*</c>
+<c>* if the "Default" UserSet is selected, the camera will boot with the default settings and </c>
+<c>* makes sure that the continuous acquisition is ready to be used, viz. all TriggerSelectors are switched off</c>
+<l>tuple_regexp_test (AvailableParamNames, 'UserSetSelector', NumMatches)</l>
+<l>if (NumMatches)</l>
+<l>    set_framegrabber_param (AcqHandle, 'UserSetSelector', 'Default')</l>
+<l>    set_framegrabber_param (AcqHandle, 'UserSetLoad', 1)</l>
+<l>else    </l>
+<l>    for Index := 0 to |TriggerSelectorValues|-1 by 1</l>
+<l>        set_framegrabber_param (AcqHandle, 'TriggerSelector', TriggerSelectorValues[Index])</l>
+<l>        set_framegrabber_param (AcqHandle, 'TriggerMode', 'Off')</l>
+<l>    endfor</l>
+<l>endif</l>
+<c></c>
+<c>*</c>
+<c>* check the availability of the needed parameters for the opened device</c>
+<l>ParameterValues := ['AcquisitionFrameRate', 'ExposureTime', 'Gain', 'ExposureAuto',  'GainAuto', 'Gamma']</l>
+<l>DefaultValues := []</l>
+<l>for Index := 0 to |ParameterValues|-1 by 1</l>
+<l>    tuple_regexp_test (AvailableParamNames, ParameterValues[Index], NumMatches)</l>
+<l>    if (0 == NumMatches)</l>
+<l>        dev_disp_text ('This device does not support the needed parameter: '+ ParameterValues[Index], 'window', 20 + 30*Index, 12, 'black', 'box_color', '#ffffff77')</l>
+<l>        stop ()               </l>
+<l>    endif    </l>
+<l>endfor</l>
+<l>dev_clear_window()</l>
+<c></c>
+<c>*</c>
+<c>* set gamma correction</c>
+<l>set_framegrabber_param (AcqHandle, 'Gamma', 1.6)</l>
+<c>*</c>
+<c>* set FrameRate to 25 or if not possible to maximum FrameRate</c>
+<l>get_framegrabber_param(AcqHandle, 'AcquisitionFrameRate_range', AcquisitionFrameRateRange)</l>
+<l>if (25 &gt; AcquisitionFrameRateRange[1])</l>
+<l>    set_framegrabber_param (AcqHandle, 'AcquisitionFrameRate', AcquisitionFrameRateRange[1])</l>
+<l>else</l>
+<l>    set_framegrabber_param (AcqHandle, 'AcquisitionFrameRate', 25)</l>
+<l>endif</l>
+<c></c>
+<c>*</c>
+<c>* start image acquisition and start the ExposureAuto and GainAuto correction </c>
+<c>* after inquiring the enumeration values </c>
+<l>grab_image_async (ImageBeforeContinuous, AcqHandle, -1)</l>
+<c></c>
+<l>get_framegrabber_param (AcqHandle, 'ExposureAuto_values', ExposureAutoValues)</l>
+<l>i := find(ExposureAutoValues, 'Continuous')</l>
+<l>if (i &gt; -1)</l>
+<l>    set_framegrabber_param (AcqHandle, 'ExposureAuto', 'Continuous')</l>
+<l>endif</l>
+<c></c>
+<l>get_framegrabber_param (AcqHandle, 'GainAuto_values', GainAutoValues)</l>
+<l>j := find(GainAutoValues, 'Continuous')</l>
+<l>if (j &gt; -1)</l>
+<l>    set_framegrabber_param (AcqHandle, 'GainAuto', 'Continuous')</l>
+<l>endif</l>
+<c></c>
+<l>for j := 1 to 100 by 1</l>
+<l>    grab_image_async (Image, AcqHandle, -1)</l>
+<l>endfor</l>
+<c></c>
+<c>*</c>
+<c>* transform the acquired images into a nice colour format (bayer_rg)</c>
+<l>cfa_to_rgb (Image, RGBImage, 'bayer_rg', 'bilinear')</l>
+<c></c>
+<c>*</c>
+<c>* save gain and exposure values in variables after the determination,</c>
+<l>get_framegrabber_param (AcqHandle, 'ExposureTime', ExposureContinuous)</l>
+<l>get_framegrabber_param (AcqHandle, 'Gain', GainContinuous)</l>
+<c></c>
+<c>*</c>
+<c>* set color of the text and the position of the text cursor</c>
+<l>dev_set_color ('#008A96')</l>
+<l>set_tposition (WindowID, 0, 1)</l>
+<l>new_line (WindowID)</l>
+<l>write_string (WindowID, 'GainContinuous:     ' + GainContinuous)</l>
+<l>new_line (WindowID)</l>
+<l>write_string (WindowID, 'ExposureContinuous: ' + ExposureContinuous)</l>
+<l>stop()</l>
+<c></c>
+<c>*</c>
+<c>* close camera</c>
+<l>close_framegrabber (AcqHandle)</l>
+<l>dev_close_window ()</l>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>

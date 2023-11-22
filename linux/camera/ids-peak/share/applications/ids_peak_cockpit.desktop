@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=IDS peak Cockpit
+GenericName=GenICam Consumer
+Comment=IDS peak Cockpit
+Exec=ids_peak_cockpit
+Icon=ids_peak_cockpit.svg
+Terminal=false
+Categories=Graphics;Photography;

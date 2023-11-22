@@ -1,0 +1,5 @@
+# Global U3V rule: Defined as class=EFh, subclass=02h, protocol=01h, ECN=U3V 
+# SUBSYSTEM=="usb", ATTR{bDeviceClass}=="ef", ATTR{bDeviceProtocol}=="01", ATTR{bDeviceSubClass}=="02", ATTR{configuration}=="USB3 Vision", MODE="0777"
+
+# Also explicitly add current U3V
+SUBSYSTEM=="usb", ATTR{bDeviceClass}=="ef", ATTR{idVendor}=="1409", MODE="0777"

@@ -1,0 +1,28 @@
+var classpeak_1_1ipl_1_1_gain =
+[
+    [ "Gain", "classpeak_1_1ipl_1_1_gain.html#ac623956767ea4ec1100070f87562658c", null ],
+    [ "~Gain", "classpeak_1_1ipl_1_1_gain.html#a25dcf22c5eab2173a804b7f07e759808", null ],
+    [ "Gain", "classpeak_1_1ipl_1_1_gain.html#acd762e5572d11731b517f4b30d94c65c", null ],
+    [ "Gain", "classpeak_1_1ipl_1_1_gain.html#aa64cd04d9bb2514d49421f5b2f97f7b1", null ],
+    [ "BlueGainMax", "classpeak_1_1ipl_1_1_gain.html#a4ea939bf97ffed60585a8299795c73cd", null ],
+    [ "BlueGainMin", "classpeak_1_1ipl_1_1_gain.html#a6f94ab557b465aa22a6826410733a32c", null ],
+    [ "BlueGainValue", "classpeak_1_1ipl_1_1_gain.html#a2f5665ab689ed3615f73d0a22c52730a", null ],
+    [ "GreenGainMax", "classpeak_1_1ipl_1_1_gain.html#a589753b61b47395f1397dc182c6ee0b3", null ],
+    [ "GreenGainMin", "classpeak_1_1ipl_1_1_gain.html#a011f5c7c301402a3b884e7ae1faa03f9", null ],
+    [ "GreenGainValue", "classpeak_1_1ipl_1_1_gain.html#a248c3f809f418bcdf1fe0c56e0a5d5a4", null ],
+    [ "IsPixelFormatSupported", "classpeak_1_1ipl_1_1_gain.html#a9bd102f31de874bd0f378f82dac21010", null ],
+    [ "MasterGainMax", "classpeak_1_1ipl_1_1_gain.html#a32e67448fd38971bad2282b0107b9237", null ],
+    [ "MasterGainMin", "classpeak_1_1ipl_1_1_gain.html#a7573d01a4997a53e6313c5c93e44e6bb", null ],
+    [ "MasterGainValue", "classpeak_1_1ipl_1_1_gain.html#a3702601b5eea1432388e3fc48e8244bc", null ],
+    [ "operator=", "classpeak_1_1ipl_1_1_gain.html#a3506e88e8174dc0afab152427959e8bd", null ],
+    [ "operator=", "classpeak_1_1ipl_1_1_gain.html#ae23dcf1d10f3305cc9facf610b4e7f3c", null ],
+    [ "Process", "classpeak_1_1ipl_1_1_gain.html#a3155a8007863c3b8d6eadc42b3434877", null ],
+    [ "ProcessInPlace", "classpeak_1_1ipl_1_1_gain.html#a2dad25e0ebb3596c3b795fd18f21d1fe", null ],
+    [ "RedGainMax", "classpeak_1_1ipl_1_1_gain.html#abea33e401088a4bc43fbc4c74e3d8eae", null ],
+    [ "RedGainMin", "classpeak_1_1ipl_1_1_gain.html#a6cef758331df5af187cfaf095fbb6485", null ],
+    [ "RedGainValue", "classpeak_1_1ipl_1_1_gain.html#a96f6fcb1ff9d02edd126ca5241022112", null ],
+    [ "SetBlueGainValue", "classpeak_1_1ipl_1_1_gain.html#a8aac3223b1a0750d962940bf9a98e113", null ],
+    [ "SetGreenGainValue", "classpeak_1_1ipl_1_1_gain.html#a796394cf8a92619daef14d32b5f679aa", null ],
+    [ "SetMasterGainValue", "classpeak_1_1ipl_1_1_gain.html#a50690c849585162fcb5c221ebd955d52", null ],
+    [ "SetRedGainValue", "classpeak_1_1ipl_1_1_gain.html#a38c9a43d57dcf2fff2e7ff5035efcba5", null ]
+];

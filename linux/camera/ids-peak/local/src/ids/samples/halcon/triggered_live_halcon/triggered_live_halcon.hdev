@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.2" halcon_version="18.11.1.0">
+<procedure name="main">
+<interface/>
+<body>
+<c>* </c>
+<c>* S02 Trigger live (with view) via the 'GenICamTL' interface:</c>
+<c>*</c>
+<c>* Runs with IDS Firmware 1.8 and higher and shows the best practise</c>
+<c>* way in using a GeniCam Camera of IDS.</c>
+<c>* After selecting and opening the first available device,</c>
+<c>* the user has three options:</c>
+<c>*    * Freerun</c>
+<c>*    * Software Trigger</c>
+<c>*    * Hardware Trigger with </c>
+<c>*       * Line 0, 2 or 3, combined with</c>
+<c>*       * Rising and Falling Edge</c>
+<c>*</c>
+<c></c>
+<l>producer_interface := 'GenICamTL'</l>
+<c></c>
+<c>* To run the example with the Halcon specific TLs, please choose </c>
+<c>* 'GigEVision2' 'USB3Vision' as producer_interface </c>
+<l>* producer_interface := 'GigEVision2'</l>
+<l>* producer_interface := 'USB3Vision'</l>
+<c></c>
+<c>* check interface revision:</c>
+<l>info_framegrabber (producer_interface, 'revision', RevInfo, RevInfoValues)</l>
+<c>* </c>
+<c>* check your installed cameras:</c>
+<l>info_framegrabber (producer_interface, 'info_boards', BoardsInfo, BoardsInfoValues)</l>
+<c></c>
+<c>* open first available camera with default settings:</c>
+<l>tuple_length(BoardsInfoValues, NumberOfDevices)</l>
+<l>if (NumberOfDevices == 0)</l>
+<c>    * No devices are connected</c>
+<l>    stop()</l>
+<l>    return()</l>
+<l>endif</l>
+<l>open_framegrabber (producer_interface, 1, 1, 0, 0, 0, 0, 'default', -1, 'default', -1, 'false', 'default', BoardsInfoValues[0], 0, -1, AcqHandle)</l>
+<c>*</c>
+<c>* get width and height format of the camera and </c>
+<c>* open a black window with the half size of the original values</c>
+<l>get_framegrabber_param (AcqHandle, 'image_width', Width)</l>
+<l>get_framegrabber_param (AcqHandle, 'image_height', Height)</l>
+<c></c>
+<c>* Open new window</c>
+<l>dev_open_window(0, 0, Width/2, Height/2, 'black', WindowHandle)</l>
+<c></c>
+<l>inputExpected := true</l>
+<l>while(inputExpected) </l>
+<c>    *</c>
+<c>    * need rowIndex to write in the correct row</c>
+<l>    rowIndex := 0</l>
+<c>    </c>
+<c>    *</c>
+<c>    * specify font name, style, and size</c>
+<l>    dev_get_window (WindowHandle)</l>
+<l>    dev_clear_window()</l>
+<l>    query_font (WindowHandle, Font)</l>
+<l>    FontWithStyleAndSize := Font[0]+'-Bold-20'</l>
+<l>    set_font (WindowHandle, FontWithStyleAndSize)</l>
+<c>    *</c>
+<c>    * header</c>
+<l>    dev_disp_text ('Trigger Modi Example:', 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<c>    *</c>
+<c>    * specify font name and size</c>
+<l>    FontWithSize := Font[0]+'-20'</l>
+<l>    set_font (WindowHandle, FontWithSize)</l>
+<c>    *</c>
+<c>    * distinguish between the trigger modi</c>
+<l>    rowIndex := rowIndex + 1</l>
+<l>    dev_disp_text ('For freerun please select &lt;f&gt;, for software trigger &lt;s&gt;, hardware trigger &lt;h&gt; \nand &lt;q&gt; to quit.' , 'window', 50, 12, 'black', [], [])</l>
+<l>    rowIndex := rowIndex + 1</l>
+<l>    read_char(WindowHandle, Char, Code)</l>
+<c>    *</c>
+<c>    * F R E E R U N</c>
+<l>    if(Char == 'f' or Char == 'F')</l>
+<l>        rowIndex := rowIndex + 1</l>
+<l>        dev_disp_text ('Freerun is selected, to start acquisition press (f), \nto quit any other key' , 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<l>        rowIndex := rowIndex + 1</l>
+<l>        read_char(WindowHandle, Char1, Code1)        </l>
+<l>        if(Char1 == 'f' or Char1 == 'F')</l>
+<l>            IDS_freerun (Image, AcqHandle)</l>
+<l>            inputExpected := true</l>
+<l>        else</l>
+<l>            Char := 'q'            </l>
+<l>        endif</l>
+<c>    *</c>
+<c>    * S O F T W A R E T R I G G E R</c>
+<l>    elseif(Char == 's' or Char == 'S')</l>
+<l>        rowIndex := rowIndex + 1</l>
+<l>        dev_disp_text ('Software trigger is selected, to start acquisition press (s), \nto quit any other key' , 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<l>        rowIndex := rowIndex + 1</l>
+<l>        read_char(WindowHandle, Char1, Code1)</l>
+<l>        if(Char1 == 's' or Char1 == 'S')</l>
+<l>            IDS_software_trigger (SoftwareImages, AcqHandle, WindowHandle)</l>
+<l>            inputExpected := true</l>
+<l>        else</l>
+<l>            Char := 'q'            </l>
+<l>        endif</l>
+<c>    *</c>
+<c>    * H A R D W A R E T R I G G E R</c>
+<l>    elseif(Char == 'h' or Char == 'H')</l>
+<l>        rowIndex := rowIndex + 1</l>
+<l>        dev_disp_text ('Hardware trigger selected' , 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<l>        rowIndex := rowIndex + 1</l>
+<l>        dev_disp_text ('For Line 0 please select &lt;0&gt;, for Line 2 &lt;2&gt; and for Line 3 &lt;3&gt;.' , 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<l>        read_char(WindowHandle, Mode, Code)</l>
+<l>        if (Mode == '0' or Mode == '2' or Mode == '3')</l>
+<l>            rowIndex := rowIndex + 1</l>
+<l>            dev_disp_text ('Please specify the activation mode of the trigger, \nplease select Rising Edge &lt;r&gt; or Falling Edge &lt;f&gt;.' , 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<l>            rowIndex := rowIndex + 1</l>
+<l>            read_char(WindowHandle, Activation, Code)</l>
+<l>            if (Activation == 'r' or Activation == 'R')</l>
+<l>                rowIndex := rowIndex + 1</l>
+<l>                dev_disp_text ('Rising edge is selected for Line '+ Mode + ', \nplease press the hardware trigger.' , 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<l>                IDS_hardware_trigger (HardwareImages, Mode, 'RisingEdge', AcqHandle, WindowHandle)</l>
+<l>                inputExpected := true</l>
+<l>            elseif(Activation == 'f' or Activation == 'F')</l>
+<l>                rowIndex := rowIndex + 1</l>
+<l>                dev_disp_text ('Falling edge is selected for Line '+ Mode + ', \nplease press the hardware trigger.' , 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<l>                IDS_hardware_trigger (HardwareImages, Mode, 'FallingEdge', AcqHandle, WindowHandle)</l>
+<l>                inputExpected := true</l>
+<l>            else</l>
+<l>                Char := 'q'            </l>
+<l>            endif</l>
+<l>        else</l>
+<l>            Char := 'q'            </l>
+<l>        endif</l>
+<l>    endif</l>
+<c>    </c>
+<c>    *</c>
+<c>    * Clean up and close device</c>
+<l>    if(Char == 'q' or Char == 'Q')</l>
+<l>        inputExpected := false</l>
+<l>        for Time := 3 to 1 by -1</l>
+<l>            rowIndex := rowIndex + 1</l>
+<l>            dev_disp_text ('Example will be closed in '+ Time+' seconds' , 'window', 20 + rowIndex * 30, 12, 'black', [], [])</l>
+<l>            wait_seconds(1)</l>
+<l>        endfor</l>
+<l>        dev_close_window()</l>
+<l>        close_framegrabber(AcqHandle)</l>
+<l>    endif</l>
+<l>endwhile</l>
+<c></c>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+<procedure name="IDS_software_trigger">
+<interface>
+<oo>
+<par name="images" base_type="iconic" dimension="1"/>
+</oo>
+<ic>
+<par name="AcqHandle" base_type="ctrl" dimension="0"/>
+<par name="WindowHandle" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>*</c>
+<c>* Software trigger:</c>
+<c>*</c>
+<c>* Acquires automatically 100 images with Software Trigger</c>
+<c></c>
+<c>* Get available features of the camera</c>
+<l>get_framegrabber_param (AcqHandle, 'available_param_names', AvailableParamNames)</l>
+<c></c>
+<l>resetTriggerSelectors (AvailableParamNames, AcqHandle, NumMatches, TriggerSelectorValues, Index)</l>
+<c></c>
+<c>* Check, if the device supports Software Trigger; </c>
+<c>* This is an alternative way to check, if the node is available</c>
+<l>try</l>
+<l>  get_framegrabber_param (AcqHandle, 'TriggerSource_values', TriggerSourceValues)</l>
+<l>catch (Exception)</l>
+<l>  if (Exception[0] == 5330)</l>
+<c>    * This device is missing the SFNC parameter TriggerSource.</c>
+<l>    stop ()</l>
+<l>  else</l>
+<c>    * Unexpected error.</c>
+<l>    stop ()</l>
+<l>  endif</l>
+<l>endtry</l>
+<l>tuple_regexp_test (TriggerSourceValues, 'Software', NumMatches)</l>
+<l>if (0 == NumMatches)</l>
+<c>  * This device does not support Software Trigger.</c>
+<l>  stop ()</l>
+<l>endif</l>
+<c></c>
+<l>tuple_regexp_test (AvailableParamNames, 'TriggerSoftware', NumMatches)</l>
+<l>if (0 == NumMatches)</l>
+<c>  * This device does not support TriggerSoftware command.</c>
+<l>  stop ()</l>
+<l>endif</l>
+<l>dev_clear_window ()</l>
+<c></c>
+<c>* Enable the Software Trigger</c>
+<l>set_framegrabber_param (AcqHandle, 'TriggerSelector', 'ExposureStart')</l>
+<c></c>
+<l>set_framegrabber_param (AcqHandle, 'TriggerMode', 'On')</l>
+<l>set_framegrabber_param (AcqHandle, 'TriggerSource', 'Software')</l>
+<l>images := {}</l>
+<l>grab_image_start (AcqHandle, -1)</l>
+<l>for Index := 0 to 100 by 1</l>
+<l>    set_framegrabber_param (AcqHandle, 'TriggerSoftware', 1)</l>
+<c>    * disable acquisition to reset the parameter values to the old ones</c>
+<l>    if (Index == 100)</l>
+<l>        set_framegrabber_param (AcqHandle, 'start_async_after_grab_async', 'disable')</l>
+<l>    endif</l>
+<l>    grab_image_async (Image, AcqHandle, -1)</l>
+<l>    dev_display (Image)</l>
+<l>    images.insert(Index,Image)</l>
+<l>endfor</l>
+<c>* </c>
+<c>* Stop grabbing.</c>
+<l>set_framegrabber_param (AcqHandle, 'do_abort_grab', 1) </l>
+<c></c>
+<l>return ()</l>
+</body>
+<docu id="IDS_software_trigger">
+<parameters>
+<parameter id="AcqHandle"/>
+<parameter id="WindowHandle"/>
+<parameter id="images"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="IDS_freerun">
+<interface>
+<oo>
+<par name="Image" base_type="iconic" dimension="0"/>
+</oo>
+<ic>
+<par name="AcqHandle" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>*</c>
+<c>* Freerun Modus:</c>
+<c>*</c>
+<c>* Acquires 100 images</c>
+<c></c>
+<c>* Get available features of the camera</c>
+<l>get_framegrabber_param (AcqHandle, 'available_param_names', AvailableParamNames)</l>
+<c></c>
+<l>resetTriggerSelectors (AvailableParamNames, AcqHandle, NumMatches, TriggerSelectorValues, Index)</l>
+<c></c>
+<l>for Index := 1 to 100 by 1</l>
+<l>    grab_image_async(Image, AcqHandle,-1)</l>
+<l>    dev_display(Image)</l>
+<l>endfor</l>
+<c>* </c>
+<c>* Stop grabbing.</c>
+<l>set_framegrabber_param (AcqHandle, 'do_abort_grab', 1)        </l>
+<l>return ()</l>
+</body>
+<docu id="IDS_freerun">
+<parameters>
+<parameter id="AcqHandle"/>
+<parameter id="Image"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="IDS_hardware_trigger">
+<interface>
+<oo>
+<par name="Images" base_type="iconic" dimension="1"/>
+</oo>
+<ic>
+<par name="Mode" base_type="ctrl" dimension="0"/>
+<par name="Activation" base_type="ctrl" dimension="0"/>
+<par name="AcqHandle" base_type="ctrl" dimension="0"/>
+<par name="WindowHandle" base_type="ctrl" dimension="0"/>
+</ic>
+</interface>
+<body>
+<c>*</c>
+<c>* Hardware trigger:</c>
+<c>* Depending on the user's selection for the </c>
+<c>* TriggerSource (Line 0/2/3) and TriggerActivation (Rising/falling Edge)</c>
+<c>* one image with 250 µs will be acquired</c>
+<c></c>
+<c>* Get available features of the camera</c>
+<l>get_framegrabber_param (AcqHandle, 'available_param_names', AvailableParamNames)</l>
+<l>get_framegrabber_param(AcqHandle, 'TriggerSelector_values', TriggerSelectorValues)</l>
+<c></c>
+<l>resetTriggerSelectors (AvailableParamNames, AcqHandle, NumMatches, TriggerSelectorValues, Index)</l>
+<c></c>
+<l>tuple_regexp_test (TriggerSelectorValues, 'ExposureStart', NumMatches)</l>
+<l>if (NumMatches)</l>
+<l>    set_framegrabber_param (AcqHandle, 'TriggerSelector', 'ExposureStart')</l>
+<l>    set_framegrabber_param (AcqHandle, 'TriggerMode', 'On')</l>
+<l>    set_framegrabber_param (AcqHandle, 'TriggerSource', 'Line' + Mode)</l>
+<l>    set_framegrabber_param (AcqHandle, 'TriggerActivation', Activation)</l>
+<l>    set_framegrabber_param (AcqHandle, 'AcquisitionMode', 'Continuous')</l>
+<l>else</l>
+<c>    * This device is missing the SFNC parameter TriggerSelector value 'ExposureStart'.</c>
+<l>    stop ()</l>
+<l>endif</l>
+<c>*</c>
+<c>* set the ExpposureTime</c>
+<l>set_framegrabber_param (AcqHandle, 'ExposureTime', 2500.0)</l>
+<c></c>
+<l>grab_image_start (AcqHandle, -1)</l>
+<l>index := 0</l>
+<l>Images := {}</l>
+<l>while (true and index &lt; 1)</l>
+<c>    *</c>
+<c>    * ignore Halcon Errors to avoid timeouts</c>
+<l>    dev_error_var (ErrorNum, 1)</l>
+<l>    dev_set_check ('~give_error')</l>
+<l>    grab_image_async (Image, AcqHandle, -1)</l>
+<l>    dev_display (Image)</l>
+<l>    Images.insert(index,Image)</l>
+<l>    index := index + 1</l>
+<c>    * Image Acquisition 01: Do something</c>
+<l>endwhile</l>
+<l>dev_disp_text ('Press F5 to continue' , 'window', 20, 12, 'black', [], [])</l>
+<l>stop()</l>
+<c>* </c>
+<c>* Stop grabbing.</c>
+<l>set_framegrabber_param (AcqHandle, 'do_abort_grab', 1) </l>
+<l>return ()</l>
+</body>
+<docu id="IDS_hardware_trigger">
+<parameters>
+<parameter id="AcqHandle"/>
+<parameter id="Activation"/>
+<parameter id="Images"/>
+<parameter id="Mode"/>
+<parameter id="WindowHandle"/>
+</parameters>
+</docu>
+</procedure>
+<procedure name="resetTriggerSelectors">
+<interface>
+<ic>
+<par name="AvailableParamNames" base_type="ctrl" dimension="0"/>
+<par name="AcqHandle" base_type="ctrl" dimension="0"/>
+</ic>
+<oc>
+<par name="NumMatches" base_type="ctrl" dimension="0"/>
+<par name="TriggerSelectorValues" base_type="ctrl" dimension="0"/>
+<par name="Index" base_type="ctrl" dimension="0"/>
+</oc>
+</interface>
+<body>
+<c>* For IDS GEV Cameras it is recommended to switch on the IDS GEV PendingACK Feature</c>
+<l>tuple_regexp_test (AvailableParamNames, 'GevGVCPPendingAck', NumMatches)</l>
+<l>if (NumMatches)</l>
+<l>    set_framegrabber_param(AcqHandle,'GevGVCPPendingAck',1)</l>
+<l>endif</l>
+<c></c>
+<c>* If the "Default" UserSet is selected, the camera will boot with the default settings and </c>
+<c>* makes sure that the continuous acquisition is ready to be used, viz. all TriggerSelectors are switched off</c>
+<l>tuple_regexp_test (AvailableParamNames, 'UserSetSelector', NumMatches)</l>
+<l>if (NumMatches)</l>
+<l>    set_framegrabber_param (AcqHandle, 'UserSetSelector', 'Default')</l>
+<l>set_framegrabber_param (AcqHandle, 'UserSetLoad', 1)</l>
+<l>else</l>
+<l>    get_framegrabber_param(AcqHandle, 'TriggerSelector_values', TriggerSelectorValues)</l>
+<l>    for Index := 0 to |TriggerSelectorValues|-1 by 1</l>
+<l>        set_framegrabber_param (AcqHandle, 'TriggerSelector', TriggerSelectorValues[Index])</l>
+<l>        set_framegrabber_param (AcqHandle, 'TriggerMode', 'Off')</l>
+<l>    endfor</l>
+<l>endif</l>
+<l>return ()</l>
+</body>
+<docu id="resetTriggerSelectors">
+<parameters>
+<parameter id="AcqHandle"/>
+<parameter id="AvailableParamNames"/>
+<parameter id="Index"/>
+<parameter id="NumMatches"/>
+<parameter id="TriggerSelectorValues"/>
+</parameters>
+</docu>
+</procedure>
+</hdevelop>

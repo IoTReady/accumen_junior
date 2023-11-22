@@ -1,0 +1,850 @@
+=================================
+COPYRIGHTS FOR ARM_NEON_2_x86_SSE
+=================================
+
+
+created by Victoria Zhislina, the Senior Application Engineer, Intel Corporation,  victoria.zhislina@intel.com
+
+*** Copyright (C) 2012-2020 Intel Corporation.  All rights reserved.
+
+
+
+======================
+COPYRIGHTS FOR CPython
+======================
+
+
+Copyright (c) 2001-2023 Python Software Foundation
+
+
+
+
+==============================================================
+COPYRIGHTS FOR Chrome OS verified boot - "firmware/lib/crc8.c"
+==============================================================
+
+
+Copyright (c) 2010 The Chromium OS Authors. All rights reserved.
+Copyright (c) 2013 The Chromium OS Authors. All rights reserved.
+
+
+
+====================
+COPYRIGHTS FOR FXdiv
+====================
+
+
+Copyright (c) 2017 Facebook Inc.
+Copyright (c) 2016-2017 Marat Dukhan
+
+
+
+=========================================================
+COPYRIGHTS FOR JSON for Modern C++ / nlohmann json / json
+=========================================================
+
+
+Copyright (c) 2013-2022 Niels Lohmann
+orcid: https://orcid.org/0000-0001-9037-795X
+email: mail@nlohmann.me
+website: https://nlohmann.me
+
+
+
+========================
+COPYRIGHTS FOR SoftFloat
+========================
+
+
+﻿Copyright 2011, 2012, 2013, 2014, 2015, 2016, 2017 The Regents of the University of California. All rights reserved. 
+
+
+
+=========================
+COPYRIGHTS FOR abseil-cpp
+=========================
+
+
+# This is the list of Abseil authors for copyright purposes.
+#
+# This does not necessarily list everyone who has contributed code, since in
+# some cases, their employer may be the copyright holder.  To see the full list
+# of contributors, see the revision history in source control.
+Google Inc.
+
+
+
+==================
+COPYRIGHTS FOR ade
+==================
+
+
+﻿Copyright (C) 2000-2022, Intel Corporation, all rights reserved.
+Copyright (C) 2009-2011, Willow Garage Inc., all rights reserved.
+Copyright (C) 2009-2016, NVIDIA Corporation, all rights reserved.
+Copyright (C) 2010-2013, Advanced Micro Devices, Inc., all rights reserved.
+Copyright (C) 2015-2022, OpenCV Foundation, all rights reserved.
+Copyright (C) 2008-2016, Itseez Inc., all rights reserved.
+Copyright (C) 2019-2022, Xperience AI, all rights reserved.
+Copyright (C) 2019-2022, Shenzhen Institute of Artificial Intelligence and
+                         Robotics for Society, all rights reserved.
+
+Third party copyrights are property of their respective owners.
+
+
+
+====================
+COPYRIGHTS FOR boost
+====================
+
+
+Copyright Beman Dawes, David Abrahams, 1998-2005.
+Copyright Rene Rivera 2004-2007.
+Copyright Vladimir Prus 2002-2004
+Copyright Ruslan Arutyunyan, 2019-2021.
+Copyright Antony Polukhin, 2021-2022.
+
+
+
+====================
+COPYRIGHTS FOR bzip2
+====================
+
+
+# This is the list of spdlog authors for copyright purposes.
+#
+# This does not necessarily list everyone who has contributed code, since in
+# some cases, their employer may be the copyright holder.  To see the full list
+# of contributors, see the revision history in source control.
+
+copyright (C) 1996-2019 Julian R Seward
+
+
+
+
+======================
+COPYRIGHTS FOR cpuinfo
+======================
+
+
+Copyright (c) 2019 Google LLC
+Copyright (c) 2017-2018 Facebook Inc.
+Copyright (C) 2012-2017 Georgia Institute of Technology
+Copyright (C) 2010-2012 Marat Dukhan
+
+
+
+========================
+COPYRIGHTS FOR crcutil.c
+========================
+
+
+Copyright (C) 2000 Dallas Semiconductor Corporation, All Rights Reserved.
+
+
+
+=====================
+COPYRIGHTS FOR eigen3
+=====================
+
+
+﻿Copyright (C) 2015 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2011-2012 Jitse Niesen <jitse@maths.leeds.ac.uk>
+Copyright (C) 2010 Konstantinos Margaritis <markos@freevec.org>
+Copyright (C) 2011 Jitse Niesen <jitse@maths.leeds.ac.uk>
+Copyright (C) 2012 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2008-2012 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2011-2018 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2009 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2006-2008, 2010 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2020 Antonio Sanchez <cantonios@google.com>
+Copyright (C) 2007-2009 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2010-2016 Konstantinos Margaritis <markos@freevec.org>
+Copyright (C) 2017 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (c) 2006, Timothy A. Davis.
+Copyright (C) 2016 Eugene Brevdo <ebrevdo@gmail.com>
+Copyright (C) 2013 Pavel Holoborodko <pavel@holoborodko.com>
+Copyright (C) 2009 Keir Mierle <mierle@gmail.com>
+Copyright (C) 2009 Mathieu Gautier <mathieu.gautier@cea.fr>
+Copyright (C) 2017 Kyle Macfarlan <kyle.macfarlan@gmail.com>
+Copyright (C) 2013 Jitse Niesen <jitse@maths.leeds.ac.uk>
+Copyright (C) 2013-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2012-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2008-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2009-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2011 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2012-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2021 C. Antonio Sanchez <cantonios@google.com>
+Copyright (C) 2007 Michael Olbrich <michael.olbrich@gmx.net>
+Copyright (C) 2008-2010 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2006-2008 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2012 Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
+Copyright (C) 2010 Vincent Lejeune
+Copyright (C) 2008-2018 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2020 Everton Constantino (everton.constantino@ibm.com)
+Copyright (C) 2008-2019 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2008-2009 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2010,2012 Jitse Niesen <jitse@maths.leeds.ac.uk>
+Copyright (C) 2006-2009 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2009-2019 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2012  Désiré Nuentsa-Wakam <desire.nuentsa_wakam@inria.fr>
+Copyright (C) 2020, Arm Limited and Contributors
+Copyright (C) 2008 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2018 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (c) 2011-2014, Willow Garage, Inc.
+Copyright (C) 2016 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2009-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2010 Daniel Lowengrub <lowdanie@gmail.com>
+Copyright (C) 2012 Desire Nuentsa <desire.nuentsa_wakam@inria.fr>
+Copyright (C) 2016 Tobias Wood <tobias@spinicist.org.uk>
+Copyright (C) 2018 Wave Computing, Inc.
+Copyright (c) 2001 Intel Corporation.
+Copyright (C) 2010 Hauke Heibel <hauke.heibel@gmail.com>
+Copyright (C) 2016 Rasmus Munk Larsen (rmlarsen@google.com)
+Copyright (C) 2008-2017 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2013 Jean Ceccato <jean.ceccato@ensimag.fr>
+Copyright (C) 2017 Codeplay Software Limited
+Copyright (c) Fabian Giesen, 2016
+Copyright (C) 2021 Chip Kerchner (chip.kerchner@ibm.com)
+Copyright (C) 2013-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2007 Julien Pommier
+Copyright (C) 2014 yoco <peter.xiau@gmail.com>
+Copyright (C) 2009 Claire Maurice
+Copyright (C) 2013 Gauthier Brun <brun.gauthier@gmail.com>
+Copyright (C) 2006-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2010-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2014 Benoit Steiner (benoit.steiner.goog@gmail.com)
+Copyright (c) 1998-2003 by the University of Florida.
+Copyright (c) 2011, Intel Corporation. All rights reserved.
+Copyright (C) 2013 Nicolas Carre <nicolas.carre@ensimag.fr>
+Copyright (C) 2009 Hauke Heibel <hauke.heibel@googlemail.com>
+Copyright (C) 2010 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2012 Alexey Korepanov <kaikaikai@yandex.ru>
+Copyright (C) 2010-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2007-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2016 Rasmus Munk Larsen <rmlarsen@google.com>
+Copyright (C) 2009 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2009 Kenneth Riddile <kfriddile@yahoo.com>
+Copyright (C) 2019 Rasmus Munk Larsen <rmlarsen@google.com>
+Copyright (C) 2014 Benoit Steiner <benoit.steiner.goog@gmail.com>
+Copyright (c) 2010, Intel Corp.
+Copyright (C) 2011-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2001 Intel Corporation
+Copyright (C) 2008 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2015 Benoit Steiner <benoit.steiner.goog@gmail.com>
+Copyright (C) 2010 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2008-2009 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2010 Jitse Niesen <jitse@maths.leeds.ac.uk>
+Copyright (c) 1994 by Xerox Corporation.  All rights reserved.
+Copyright (C) 2010-2013 Hauke Heibel <hauke.heibel@gmail.com>
+Copyright (C) 2008-2010 Benoit Jacob <jacob.benoit.1@gmail.com>
+Copyright (C) 2012 Desire Nuentsa Wakam <desire.nuentsa_wakam@inria.fr>
+Copyright (C) 2008-2011 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (c) 2021, NVIDIA CORPORATION. All rights reserved.
+Copyright (C) 2009 Hauke Heibel <hauke.heibel@gmail.com>
+Copyright (C) 2005, the Regents of the University of Minnesota
+Copyright (C) 2009 Rohit Garg <rpg.314@gmail.com>
+Copyright (C) 2010 Thomas Capricelli <orzel@freehackers.org>
+Copyright (C) 2014 Pedro Gonnet (pedro.gonnet@gmail.com)
+Copyright (c) 2005 by Timothy A. Davis.  All Rights Reserved.
+Copyright (C) 2014-2019 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2016 Benoit Steiner <benoit.steiner.goog@gmail.com>
+Copyright (C) 2016 Pedro Gonnet (pedro.gonnet@gmail.com)
+Copyright (C) 2012-2013 Desire Nuentsa <desire.nuentsa_wakam@inria.fr>
+Copyright (C) 2009 Ricard Marxer <email@ricardmarxer.com>
+Copyright (C) 2009-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2016 Benoit Steiner (benoit.steiner.goog@gmail.com)
+Copyright (C) 2011 Timothy E. Holy <tim.holy@gmail.com >
+Copyright (C) 2014-2017 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (c) 2014-2015, Open Source Robotics Foundation
+Copyright (C) 2019 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2013 Pierre Zoppitelli <pierre.zoppitelli@ensimag.fr>
+Copyright (C) 2016 Konstantinos Margaritis <markos@freevec.org>
+Copyright (C) 2008-2016 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2018 Rasmus Munk Larsen <rmlarsen@google.com>
+Copyright (C) 2008-2014 Gael Guennebaud <gael.guennebaud@inria.fr>
+Copyright (C) 2008-2016 Konstantinos Margaritis <markos@freevec.org>
+Copyright (C) 2009-2015 Gael Guennebaud <gael.guennebaud@inria.fr>
+
+
+
+
+=======================
+COPYRIGHTS FOR farmhash
+=======================
+
+
+Copyright (c) 2014 Google, Inc.
+
+
+
+==================
+COPYRIGHTS FOR fft
+==================
+
+
+Copyright(C) 1996-2001 Takuya OOURA
+email: ooura@mmm.t.u-tokyo.ac.jp
+download: http://momonga.t.u-tokyo.ac.jp/~ooura/fft.html
+
+
+
+==========================
+COPYRIGHTS FOR flatbuffers
+==========================
+
+
+Copyright 2017 Google Inc. All rights reserved.
+Copyright 2016 Google Inc. All rights reserved.
+Copyright 2020 Google Inc. All rights reserved.
+Copyright 2014 Google Inc. All rights reserved.
+Copyright 2018 Dan Field
+Copyright 2015 Google Inc. All rights reserved.
+Copyright 2018 Google Inc. All rights reserved.
+Copyright 2021 Google Inc. All rights reserved.
+
+
+
+===================
+COPYRIGHTS FOR fp16
+===================
+
+
+Copyright (c) 2017 Facebook Inc.
+Copyright (c) 2017 Georgia Institute of Technology
+Copyright 2019 Google LLC
+
+
+
+=======================
+COPYRIGHTS FOR gemmlowp
+=======================
+
+
+# This is the official list of gemmlowp authors for copyright purposes.
+# This file is distinct from the CONTRIBUTORS.txt file.
+# See the latter for an explanation.
+
+# Names should be added to this file as:
+# Name or Organization <email address>
+# The email address is not required for organizations.
+
+Google Inc.
+Intel Corporation
+ARM Ltd.
+Silk Labs Inc.
+MIPS Tech LLC
+Wave Computing Inc.
+
+
+
+================================
+COPYRIGHTS FOR gulrak filesystem
+================================
+
+
+Copyright (c) 2018, Steffen Schuemann <s.schuemann@pobox.com>
+All rights reserved.
+
+
+
+
+=====================
+COPYRIGHTS FOR libc++
+=====================
+
+
+The list is sorted by surname and formatted to allow easy grepping and
+beautification by scripts.  The fields are: name (N), email (E), web-address
+(W), PGP key ID and fingerprint (P), description (D), and snail-mail address
+(S).
+
+N: Saleem Abdulrasool
+E: compnerd@compnerd.org
+D: Minor patches and Linux fixes.
+
+N: Ulf Adams
+D: Invented the Ryu and Ryu Printf algorithms used in floating-point to_chars, and wrote the initial code.
+
+N: Muiez Ahmed
+E: muiez@ibm.com
+D: z/OS port.
+
+N: Dan Albert
+E: danalbert@google.com
+D: Android support and test runner improvements.
+
+N: Dimitry Andric
+E: dimitry@andric.com
+D: Visibility fixes, minor FreeBSD portability patches.
+
+N: Holger Arnold
+E: holgerar@gmail.com
+D: Minor fix.
+
+N: Jorg Brown
+D: Ported floating-point to_chars from MSVC to libc++.
+
+N: David Chisnall
+E: theraven at theravensnest dot org
+D: FreeBSD and Solaris ports, libcxxrt support, some atomics work.
+
+N: Marshall Clow
+E: mclow.lists@gmail.com
+E: marshall@idio.com
+D: C++14 support, patches and bug fixes.
+
+N: Jonathan B Coe
+E: jbcoe@me.com
+D: Implementation of propagate_const.
+
+N: Matthew Dempsky
+E: matthew@dempsky.org
+D: Minor patches and bug fixes.
+
+N: Christopher Di Bella
+E: cjdb@google.com
+E: cjdb.ns@gmail.com
+D: Library concepts.
+
+N: Glen Joseph Fernandes
+E: glenjofe@gmail.com
+D: Implementation of to_address.
+
+N: Eric Fiselier
+E: eric@efcs.ca
+D: LFTS support, patches and bug fixes.
+
+N: Bill Fisher
+E: william.w.fisher@gmail.com
+D: Regex bug fixes.
+
+N: Google Inc.
+D: Copyright owner and contributor of the CityHash algorithm
+
+N: Howard Hinnant
+E: hhinnant@apple.com
+D: Architect and primary author of libc++
+
+N: Sergej Jaskiewicz
+E: jaskiewiczs@icloud.com
+D: Minor improvements in the testing infrastructure
+
+N: Hyeon-bin Jeong
+E: tuhertz@gmail.com
+D: Minor patches and bug fixes.
+
+N: Argyrios Kyrtzidis
+E: kyrtzidis@apple.com
+D: Bug fixes.
+
+N: Stephan T. Lavavej
+E: stl@microsoft.com
+E: stl@nuwen.net
+D: Implemented floating-point to_chars.
+
+N: Microsoft Corporation
+D: Contributed floating-point to_chars.
+
+N: Bruce Mitchener, Jr.
+E: bruce.mitchener@gmail.com
+D: Emscripten-related changes.
+
+N: Michel Morin
+E: mimomorin@gmail.com
+D: Minor patches to is_convertible.
+
+N: Andrew Morrow
+E: andrew.c.morrow@gmail.com
+D: Minor patches and Linux fixes.
+
+N: Michael Park
+E: mcypark@gmail.com
+D: Implementation of <variant>.
+
+N: Arvid Picciani
+E: aep at exys dot org
+D: Minor patches and musl port.
+
+N: Bjorn Reese
+E: breese@users.sourceforge.net
+D: Initial regex prototype
+
+N: Nico Rieck
+E: nico.rieck@gmail.com
+D: Windows fixes
+
+N: Jon Roelofs
+E: jroelofS@jroelofs.com
+D: Remote testing, Newlib port, baremetal/single-threaded support.
+
+N: Kent Ross
+E: k@mad.cash
+D: Patches for operator<=> support
+
+N: Jonathan Sauer
+D: Minor patches, mostly related to constexpr
+
+N: Craig Silverstein
+E: csilvers@google.com
+D: Implemented Cityhash as the string hash function on 64-bit machines
+
+N: Richard Smith
+D: Minor patches.
+
+N: Joerg Sonnenberger
+E: joerg@NetBSD.org
+D: NetBSD port.
+
+N: Stephan Tolksdorf
+E: st@quanttec.com
+D: Minor <atomic> fix
+
+N: Ruben Van Boxem
+E: vanboxem dot ruben at gmail dot com
+D: Initial Windows patches.
+
+N: Michael van der Westhuizen
+E: r1mikey at gmail dot com
+
+N: Larisse Voufo
+D: Minor patches.
+
+N: Klaas de Vries
+E: klaas at klaasgaaf dot nl
+D: Minor bug fix.
+
+N: Mark de Wever
+E: koraq at xs4all dot nl
+D: Format library support.
+D: Finalized the porting of MSVC's to_chars to libc++.
+
+N: Zhang Xiongpang
+E: zhangxiongpang@gmail.com
+D: Minor patches and bug fixes.
+
+N: Xing Xue
+E: xingxue@ca.ibm.com
+D: AIX port
+
+N: Jeffrey Yasskin
+E: jyasskin@gmail.com
+E: jyasskin@google.com
+D: Linux fixes.
+
+N: Zhihao Yuan
+E: lichray@gmail.com
+D: Standard compatibility fixes.
+
+
+
+========================
+COPYRIGHTS FOR libc++abi
+========================
+
+
+The list is sorted by surname and formatted to allow easy grepping and
+beautification by scripts.  The fields are: name (N), email (E), web-address
+(W), PGP key ID and fingerprint (P), description (D), and snail-mail address
+(S).
+
+N: Aaron Ballman
+E: aaron@aaronballman.com
+D: Minor patches
+
+N: Logan Chien
+E: logan.chien@mediatek.com
+D: ARM EHABI Unwind & Exception Handling
+
+N: Marshall Clow
+E: mclow.lists@gmail.com
+E: marshall@idio.com
+D: Architect and primary coauthor of libc++abi
+
+N: Matthew Dempsky
+E: matthew@dempsky.org
+D: Minor patches and bug fixes.
+
+N: Nowar Gu
+E: wenhan.gu@gmail.com
+D: Minor patches and fixes
+
+N: Howard Hinnant
+E: hhinnant@apple.com
+D: Architect and primary coauthor of libc++abi
+
+N: Dana Jansens
+E: danakj@chromium.org
+D: ARM EHABI Unwind & Exception Handling
+
+N: Nick Kledzik
+E: kledzik@apple.com
+
+N: Antoine Labour
+E: piman@chromium.org
+D: ARM EHABI Unwind & Exception Handling
+
+N: Bruce Mitchener, Jr.
+E: bruce.mitchener@gmail.com
+D: Minor typo fixes
+
+N: Andrew Morrow
+E: andrew.c.morrow@gmail.com
+D: Minor patches and fixes
+
+N: Erik Olofsson
+E: erik.olofsson@hansoft.se
+E: erik@olofsson.info
+D: Minor patches and fixes
+
+N: Jon Roelofs
+E: jroelofs@jroelofs.com
+D: ARM EHABI Unwind & Exception Handling, Bare-metal
+
+N: Nico Weber
+E: thakis@chromium.org
+D: ARM EHABI Unwind & Exception Handling
+
+N: Albert J. Wong
+E: ajwong@google.com
+D: ARM EHABI Unwind & Exception Handling
+
+
+
+============================
+COPYRIGHTS FOR libjpeg-turbo
+============================
+
+
+Copyright (C) 2009-2017 D. R. Commander
+Copyright (C) 2011-2016 Siarhei Siamashka
+Copyright (C) 2015-2016 Matthieu Darbois
+Copyright (C) 2015 Intel Corporation
+Copyright (C) 2015 Google, Inc.
+Copyright (C) 2013-2014 MIPS Technologies, Inc.
+Copyright (C) 2013 Linaro Limited
+Copyright (C) 2009-2011 Nokia Corporation and/or its subsidiary(-ies)
+Copyright (C) 2009 Pierre Ossman for Cendio AB
+Copyright (C) 1999-2006 MIYASAKA Masaru
+Copyright (C) 1991-2016 Thomas G. Lane, Guido Vollbeding
+
+
+
+=====================
+COPYRIGHTS FOR libpng
+=====================
+
+
+Copyright (c) 1995-2019 The PNG Reference Library Authors.
+Copyright (c) 2018-2019 Cosmin Truta.
+Copyright (c) 2000-2002, 2004, 2006-2018 Glenn Randers-Pehrson.
+Copyright (c) 1996-1997 Andreas Dilger.
+Copyright (c) 1995-1996 Guy Eric Schalnat, Group 42, Inc.
+
+
+
+=====================
+COPYRIGHTS FOR libusb
+=====================
+
+
+Copyright © 2001 Johannes Erdfelt <johannes@erdfelt.com>
+Copyright © 2007-2009 Daniel Drake <dsd@gentoo.org>
+Copyright © 2010-2012 Peter Stuge <peter@stuge.se>
+Copyright © 2008-2016 Nathan Hjelm <hjelmn@users.sourceforge.net>
+Copyright © 2009-2013 Pete Batard <pete@akeo.ie>
+Copyright © 2009-2013 Ludovic Rousseau <ludovic.rousseau@gmail.com>
+Copyright © 2010-2012 Michael Plante <michael.plante@gmail.com>
+Copyright © 2011-2013 Hans de Goede <hdegoede@redhat.com>
+Copyright © 2012-2013 Martin Pieuchot <mpi@openbsd.org>
+Copyright © 2012-2013 Toby Gray <toby.gray@realvnc.com>
+Copyright © 2013-2018 Chris Dickens <christopher.a.dickens@gmail.com>
+
+
+
+=====================
+COPYRIGHTS FOR libzip
+=====================
+
+
+Copyright (C) 1999-2020 Dieter Baron and Thomas Klausner
+Dieter Baron <dillo@nih.at>
+Thomas Klausner <tk@giga.or.at>
+
+
+
+======================
+COPYRIGHTS FOR mbedtls
+======================
+
+
+Copyright (C) 2006-2016, ARM Limited, All Rights Reserved
+Copyright The Mbed TLS Contributors
+
+
+Modification notes:
+Added a modified Version of the file blowfish.c by IDS.
+
+
+
+=======================================================
+COPYRIGHTS FOR numpy.i: a SWIG Interface File for NumPy
+=======================================================
+
+
+Copyright (c) 2005-2015, NumPy Developers.
+All rights reserved.
+
+
+
+
+=====================
+COPYRIGHTS FOR oneTBB
+=====================
+
+
+Copyright (c) 2005-2021 Intel Corporation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+
+
+=====================
+COPYRIGHTS FOR opencv
+=====================
+
+
+﻿Copyright (C) 2000-2022, Intel Corporation, all rights reserved.
+Copyright (C) 2009-2011, Willow Garage Inc., all rights reserved.
+Copyright (C) 2009-2016, NVIDIA Corporation, all rights reserved.
+Copyright (C) 2010-2013, Advanced Micro Devices, Inc., all rights reserved.
+Copyright (C) 2015-2022, OpenCV Foundation, all rights reserved.
+Copyright (C) 2008-2016, Itseez Inc., all rights reserved.
+Copyright (C) 2019-2022, Xperience AI, all rights reserved.
+Copyright (C) 2019-2022, Shenzhen Institute of Artificial Intelligence and
+                         Robotics for Society, all rights reserved.
+
+Third party copyrights are property of their respective owners.
+
+
+
+====================
+COPYRIGHTS FOR psimd
+====================
+
+
+Copyright (c) 2017 Facebook Inc.
+Copyright (c) 2014-2017 Georgia Institute of Technology
+Copyright 2019 Google LLC
+
+
+
+==========================
+COPYRIGHTS FOR pthreadpool
+==========================
+
+
+Copyright 2019 Google LLC
+Copyright (c) 2017 Facebook Inc.
+Copyright (c) 2015-2017 Georgia Institute of Technology
+All rights reserved.
+
+
+
+==================
+COPYRIGHTS FOR qt5
+==================
+
+
+The Qt Toolkit is Copyright (C) 2015 The Qt Company Ltd.
+Contact: http://www.qt.io/licensing/
+
+
+
+==================
+COPYRIGHTS FOR ruy
+==================
+
+
+Copyright 2021 Google LLC. All Rights Reserved.
+Copyright 2020 The TensorFlow Authors. All Rights Reserved.
+Copyright 2019 Google LLC. All Rights Reserved.
+Copyright 2020 Google LLC. All Rights Reserved.
+Copyright 2019 The TensorFlow Authors. All Rights Reserved.
+Copyright 2021 Google LLC
+
+
+
+=====================
+COPYRIGHTS FOR spdlog
+=====================
+
+
+# This is the list of spdlog authors for copyright purposes.
+#
+# This does not necessarily list everyone who has contributed code, since in
+# some cases, their employer may be the copyright holder.  To see the full list
+# of contributors, see the revision history in source control.
+
+Copyright (c) 2016 Gabi Melman.
+
+
+
+=========================
+COPYRIGHTS FOR tensorflow
+=========================
+
+
+# This is the official list of TensorFlow authors for copyright purposes.
+# This file is distinct from the CONTRIBUTORS files.
+# See the latter for an explanation.
+
+# Names should be added to this file as:
+# Name or Organization <email address>
+# The email address is not required for organizations.
+
+Google Inc.
+Yuan Tang <terrytangyuan@gmail.com>
+Arm Ltd
+
+
+
+======================
+COPYRIGHTS FOR xnnpack
+======================
+
+
+Copyright (c) Facebook, Inc. and its affiliates. All rights reserved.
+Copyright 2019 Google LLC
+
+
+
+===================
+COPYRIGHTS FOR zlib
+===================
+
+
+Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler
+
+
+
+====================
+COPYRIGHTS FOR {fmt}
+====================
+
+
+Copyright (c) 2012 - present, Victor Zverovich
+
+
+

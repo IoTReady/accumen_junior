@@ -1,0 +1,10 @@
+#!/bin/bash
+
+[ "$0" != "${BASH_SOURCE[0]}" ] && SOURCED=1 || SOURCED=0
+PEAK_PATH="$(readlink -f "$(dirname "${BASH_SOURCE[0]}")")"
+export PEAK_PATH
+export LD_LIBRARY_PATH="$PEAK_PATH/../lib:$LD_LIBRARY_PATH"
+export GENICAM_GENTL32_PATH="$GENICAM_GENTL32_PATH:$PEAK_PATH/../lib/ids/cti"
+export GENICAM_GENTL64_PATH="$GENICAM_GENTL64_PATH:$PEAK_PATH/../lib/ids/cti"
+
+[ "$SOURCED" -eq 0 ] && python3 "$PEAK_PATH/../local/src/ids/samples/peak/python/open_camera/open_camera.py" "$@"

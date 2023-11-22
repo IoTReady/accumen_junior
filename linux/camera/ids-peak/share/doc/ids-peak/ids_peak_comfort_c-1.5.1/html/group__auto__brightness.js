@@ -1,0 +1,25 @@
+var group__auto__brightness =
+[
+    [ "peak_AutoBrightness_Exposure_GetAccessStatus", "group__auto__brightness.html#ga605292223dff0ef642c3c51cb889a58c", null ],
+    [ "peak_AutoBrightness_Exposure_Mode_Get", "group__auto__brightness.html#gab5ee6e7867b2a4a921f1d9b37cc179c4", null ],
+    [ "peak_AutoBrightness_Exposure_Mode_Set", "group__auto__brightness.html#ga46cbb58dcf40c701985a3d5f803b69c1", null ],
+    [ "peak_AutoBrightness_Gain_GetAccessStatus", "group__auto__brightness.html#ga61c19593ea9d41c0773267a6bdf04511", null ],
+    [ "peak_AutoBrightness_Gain_Mode_Get", "group__auto__brightness.html#gaa7fc6ae883a3e6792ed649ad7703c012", null ],
+    [ "peak_AutoBrightness_Gain_Mode_Set", "group__auto__brightness.html#ga7d28ba64c83d8924b86435e6e28b627b", null ],
+    [ "peak_AutoBrightness_GetAccessStatus", "group__auto__brightness.html#ga71b18de8f37d18fcf55a6ed830c863e3", null ],
+    [ "peak_AutoBrightness_ROI_Get", "group__auto__brightness.html#gadbf466039ec961f3839eaaf8ff5a2d9a", null ],
+    [ "peak_AutoBrightness_ROI_Mode_Get", "group__auto__brightness.html#gac2abedf48cd90211f60ae3beac8d6b57", null ],
+    [ "peak_AutoBrightness_ROI_Mode_Set", "group__auto__brightness.html#gaf72fa46f4faa7b58494889b39776cc8f", null ],
+    [ "peak_AutoBrightness_ROI_Offset_GetRange", "group__auto__brightness.html#gafcf9330223886d795efb245e0040875d", null ],
+    [ "peak_AutoBrightness_ROI_Set", "group__auto__brightness.html#ga94705c8d58d00d5313c2ad9a2ea8f81e", null ],
+    [ "peak_AutoBrightness_ROI_Size_GetRange", "group__auto__brightness.html#ga2c6f74ebfccace30ec79b24224e2e73d", null ],
+    [ "peak_AutoBrightness_Target_Get", "group__auto__brightness.html#ga171e750607b979326fdd394add4276ea", null ],
+    [ "peak_AutoBrightness_Target_GetRange", "group__auto__brightness.html#gaf072882e46e8fc877077d6fcbade29b1", null ],
+    [ "peak_AutoBrightness_Target_Set", "group__auto__brightness.html#gadeadc3d4a89205deceab3480900144d5", null ],
+    [ "peak_AutoBrightness_TargetPercentile_Get", "group__auto__brightness.html#ga7056dfc65aa25599fb5c59eae26aa3a1", null ],
+    [ "peak_AutoBrightness_TargetPercentile_GetRange", "group__auto__brightness.html#ga999c332a290feb239eab0333a83e42d6", null ],
+    [ "peak_AutoBrightness_TargetPercentile_Set", "group__auto__brightness.html#ga0a6c4a6416bfbbacaab273ce62cf02f2", null ],
+    [ "peak_AutoBrightness_TargetTolerance_Get", "group__auto__brightness.html#gab0cf5abd7ad41eeb7e6b862ea74d3ce0", null ],
+    [ "peak_AutoBrightness_TargetTolerance_GetRange", "group__auto__brightness.html#ga13eb034948e8954569f1542c05f2c66c", null ],
+    [ "peak_AutoBrightness_TargetTolerance_Set", "group__auto__brightness.html#ga7b1ed7fc93ddde19ae9a0e58381b70e8", null ]
+];
