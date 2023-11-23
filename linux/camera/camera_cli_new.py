@@ -39,9 +39,12 @@ def save_image(img):
             image_data = img.GetArray()
             
             # Save the image as a file (e.g., PNG)
-            with open('captured_image.png', 'wb') as f:
-                f.write(image_data.tobytes())
+            #with open('captured_basler_image.png', 'wb') as f:
+            #    f.write(image_data.tobytes())
             
+            #deafult pylon way
+            image_data.Save(pylon.ImageFileFormat_Png, "captured_basler_image.png")
+
             # Release the image
             img.Release()
     except Exception as e:
