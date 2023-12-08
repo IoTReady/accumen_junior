@@ -50,11 +50,14 @@ class CameraApp(QMainWindow):
         img = self.capture_frame_from_camera()
         if img:
             self.save_image(img)
+            print("Image saved")
 
     def capture_frame_from_camera(self):
         try:
+            print("capturing image")
             self.camera.StartGrabbing(pylon.GrabStrategy_LatestImageOnly)
             img = self.camera.RetrieveResult(10000, pylon.TimeoutHandling_ThrowException)
+            print("got image")
             return img
         except Exception as e:
             print(f"Error capturing frame: {e}")
@@ -62,8 +65,9 @@ class CameraApp(QMainWindow):
 
     def save_image(self, img):
         try:
-            img_res = pylon.PylonImage()
+            img_res = self.img_res 
             img_res.AttachGrabResultBuffer(img)
+            print("saved image")
             filename = "captured_image.png"
             img_res.Save(pylon.ImageFileFormat_Png, filename)
             print(f"Image saved as {filename}")
@@ -75,7 +79,8 @@ class CameraApp(QMainWindow):
         img = self.capture_frame_from_camera()
         if img:
             image_data = img.GetArray()
-            height, width, channel = image_data.shape
+            #height, width, channel = image_data.shape
+            height, width = image_data.shape
             bytes_per_line = 3 * width
             q_image = QImage(image_data.data, width, height, bytes_per_line, QImage.Format_RGB888)
             pixmap = QPixmap.fromImage(q_image)

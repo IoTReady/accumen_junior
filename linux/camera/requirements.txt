@@ -1,2 +1,5 @@
 Pillow==8.4.0
 typer==0.4.0
+PyQt5==5.15.6
+pypylon==3.0.0
+numpy==1.21.5
