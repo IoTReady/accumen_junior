@@ -12,22 +12,19 @@ EXPOSURE = 10000
 GAIN = 1
 
 
-def initialise_camera():
+def initialise_camera(exposure,gamma,gain):
     try:
-        # Initialize the pylon runtime system (optional)
-        # pylon.pylon_initialize()
-        
         # Create an instant camera object for the first available camera
         camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice()) 
         img_res = pylon.PylonImage()
         # Open the camera
         camera.Open()
         
-        # Set exposure time in microseconds
-        camera.ExposureTime.SetValue(EXPOSURE)  # 10,000 microseconds (10 ms)
-        
-        # Set gain value in dB
-        camera.Gain.SetValue(GAIN)  # Set gain to 6 dB
+        # https://docs.baslerweb.com/gamma#python
+
+        camera.ExposureTime.SetValue(exposure)  # 10,000 microseconds (10 ms) 
+        camera.Gain.SetValue(gain)  # Set gain to 6 dB
+        camera.Gamma.SetValue(gamma) # Gamma < 1: The overall brightness increases.
         
         return camera, img_res
     except Exception as e:

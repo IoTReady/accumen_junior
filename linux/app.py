@@ -11,13 +11,12 @@ import typer
 import flask
 import semver
 from os import path, getcwd
-from camera.camera import initialise_camera, capture_optimised
+from camera.camera import initialise_camera, capture_optimised, camera_close
 from api_client import validate_image
 from mdns import init_service
 
 cam = None
 stream = None
-exiting = False
 firmware_fname = "firmware.py"
 firmware_version = None
 
@@ -30,38 +29,11 @@ LOG_LEVELS = {
     "error": log.error,
 }
 
+EXPOSURE = 10000
+GAIN = 1
+GAMMA = 1
+
 g_path = "/tmp"
-
-g_enable_single_color_rejection = True
-g_enable_brightness_optimisation = True
-g_enable_hue_optimisation = False
-g_enable_contrast_optimisation = True
-
-g_brightness_optimal = 37
-g_brightness_diff = 2
-g_exposure_auto = False
-g_exposure_absolute = 300
-g_exposure_absolute_min = 25
-g_exposure_absolute_max = 1000
-g_exposure_absolute_step = 25
-brightness_slope = 1
-brightness_intercept = 0
-best_brightness_diff = 1E10
-best_exposure = 0
-
-g_hue_min = 80
-g_hue_max = 150
-
-g_contrast_optimal = 30
-g_contrast_diff = 3
-g_contrast_control = 32
-g_contrast_control_min = 32
-g_contrast_control_max = 48
-g_contrast_control_step = 2
-
-g_max_attempts = 1
-g_brightness_control = 0
-
 
 
 try:
@@ -134,67 +106,23 @@ def main(
     logfile: str = "accumen_junior.log",
     host: str = "0.0.0.0",
     port: int = 8000,
-    skip: int = 2,
-    max_attempts: int = g_max_attempts,
-    brightness_control: int = g_brightness_control,
-    brightness_optimal: int = g_brightness_optimal,
-    brightness_diff: int = g_brightness_diff,
-    enable_single_color_rejection: bool = g_enable_single_color_rejection,
-    enable_brightness_optimisation: bool = g_enable_brightness_optimisation,
-    enable_hue_optimisation: bool = g_enable_hue_optimisation,
-    enable_contrast_optimisation: bool = g_enable_contrast_optimisation,
     path: str = g_path,
-    hue_min: int = g_hue_min,
-    hue_max: int = g_hue_max,
-    contrast_optimal: int = g_contrast_optimal,
-    contrast_diff: int = g_contrast_diff,
-    contrast_control_min: int = g_contrast_control_min,
-    contrast_control_max: int = g_contrast_control_max,
-    contrast_control_step: int = g_contrast_control_step,
-    exposure_absolute_min: int = g_exposure_absolute_min,
-    exposure_absolute_max: int = g_exposure_absolute_max,
-    exposure_absolute_step: int = g_exposure_absolute_step,
-    exposure_auto: bool = g_exposure_auto,
 ):
     global cam
     global stream
-    global exiting
     logging.basicConfig(
         level=logging.DEBUG,
         filename=logfile,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    cam, stream = initialise_camera(
-        device=device, 
-        path=path,
-        skip=skip,
-        max_attempts=max_attempts,
-        brightness_control=brightness_control,
-        brightness_optimal=brightness_optimal,
-        brightness_diff=brightness_diff,
-        enable_single_color_rejection=enable_single_color_rejection,
-        enable_brightness_optimisation=enable_brightness_optimisation,
-        enable_hue_optimisation=enable_hue_optimisation,
-        enable_contrast_optimisation=enable_contrast_optimisation,
-        hue_min=hue_min,
-        hue_max=hue_max,
-        contrast_optimal=contrast_optimal,
-        contrast_diff=contrast_diff,
-        contrast_control_min=contrast_control_min,
-        contrast_control_max=contrast_control_max,
-        contrast_control_step=contrast_control_step,
-        exposure_absolute_min=exposure_absolute_min,
-        exposure_absolute_max=exposure_absolute_max,
-        exposure_absolute_step=exposure_absolute_step,
-        exposure_auto=exposure_auto
-    )
+    cam, stream = initialise_camera(EXPOSURE,GAMMA,GAIN)
     try:
         init_service(host, port)
     except Exception as e:
         print("Exception in mdns.init_service:", str(e))
     app.run(host=host, port=port, debug=False)
-    stream.close()
-    cam.close()
+    #close stream and camera
+    camera_close(cam)
 
 
 if __name__ == "__main__":
