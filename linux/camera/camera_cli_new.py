@@ -5,6 +5,7 @@ from numpy.core.fromnumeric import sort
 from pypylon import pylon
 from time import sleep
 from datetime import datetime
+from PIL import Image
 
 gain_redux = 0
 EXPOSURE = 10000
@@ -48,39 +49,30 @@ def capture_frame(camera):
 def save_image(camera,img, img_res):
     try:
         now = int(datetime.now().timestamp())
-        tmppath = f"/tmp/{now}.jpg"
+        tmppath = f"/tmp/{now}.tiff"
+        tmppath_png = f"/tmp/png/{now}.png"
+        tmppath_jpg = f"/tmp/jpg/{now}.jpg"
         if img is not None and img.GrabSucceeded():
-            # Access the image data
-            #image_data = img.GetArray()
-            
-            # Save the image as a file (e.g., PNG)
-            #with open('captured_basler_image.png', 'wb') as f:
-            #    f.write(image_data.tobytes())
-            
-            #deafult pylon way
-            #image_data.Save(pylon.ImageFileFormat_Png, "captured_basler_image.png")
 
             img_res.AttachGrabResultBuffer(img)
             print("Attached Grab results ...")
-            img_res.Save(pylon.ImageFileFormat_Png, tmppath)
+            img_res.Save(pylon.ImageFileFormat_Tiff, tmppath)
+            
+            # Convert the TIFF image to PNG using Pillow
+            #tiff_image = Image.open(tmppath)
+            #tiff_image.save(tmppath_png, "PNG")
+            #print(f"Image Saved {tmppath_png}")
 
-            #image_data = img.GetArray()
-            #grey_image = Image.fromarray(np.uint8(image_data),mode="L")
-            #pillow_image = grey_image.convert('RGB')
-            # Save the image as a file (e.g., PNG)
-            #pillow_image.save(filename)
+            tiff_image = Image.open(tmppath).convert("RGB")
+            tiff_image.save(tmppath_jpg,"JPEG",quality=100)
+            print(f"Image Saved {tmppath_jpg}")
 
-
-            print(f"Image Saved {tmppath}")
             # Release the image
             img.Release()
             print("Trying to release the image")
         sleep(1)
         if camera.IsGrabbing():
             camera.StopGrabbing()
-        #gain_redux += 0.15
-        #camera.Gain.SetValue(1.0-gain_redux)  # Set gain to 6 dB
-        #print(f"Camera Gain : {1.0-gain_redux}")
         img = capture_frame(camera)
         return tmppath 
     except Exception as e:
