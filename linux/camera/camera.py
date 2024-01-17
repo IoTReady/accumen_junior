@@ -10,6 +10,7 @@ from PIL import Image
 gain_redux = 0
 EXPOSURE = 10000
 GAIN = 1
+GAMMA = 1
 
 
 def initialise_camera(exposure,gamma,gain):
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     #cProfile.run("img = capture_frame(camera)", sort='cumulative')
     #cProfile.run("save_image(camera, img, img_res)", sort='cumulative')
     #cProfile.run("camera_close(camera)", sort='cumulative')
-    camera, img_res = initialise_camera()
+    camera, img_res = initialise_camera(EXPOSURE, GAMMA, GAIN)
     
     if camera:
         ret = capture_optimised(camera,img_res)
