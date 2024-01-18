@@ -1,290 +1,203 @@
-import os
-import logging
-from io import BytesIO
-from datetime import datetime
-from subprocess import call
-from PIL import Image, ImageStat
-try:
-    from .v4l2py.device import Device, iter_video_capture_devices 
-except:
-    from v4l2py.device import Device, iter_video_capture_devices 
+import sys
+import cv2
+from ids_peak import ids_peak, ids_peak_ipl_extension
+from ids_peak_ipl import ids_peak_ipl
 
-log = logging.getLogger(__name__)
+VERSION = "1.2.0"
+FPS_LIMIT = 30
+EXPOSURE = 100000
+GAIN = 1.0
+X_OFFSET = 0
+Y_OFFSET = 0
+WIDTH = 4000
+HEIGHT = 3000
+ExposureAuto = "Continuous"
+GainAuto = "Continuous"
 
-g_width = 3264
-g_height = 2448
-g_xoffset = 408
-g_yoffset = 0
-g_path = "/tmp"
+class CameraCLI:
+    def __init__(self):
+        self.filename = 0
+        self.displayed_image = None
 
-g_enable_single_color_rejection = True
-g_enable_brightness_optimisation = True
-g_enable_hue_optimisation = False
-g_enable_contrast_optimisation = True
+        self.__device = None
+        self.__nodemap_remote_device = None
+        self.__datastream = None
 
-g_brightness_optimal = 37
-g_brightness_diff = 2
-g_exposure_auto = True
-g_exposure_absolute = 300
-g_exposure_absolute_min = 25
-g_exposure_absolute_max = 1000
-g_exposure_absolute_step = 25
-brightness_slope = 1
-brightness_intercept = 0
-best_brightness_diff = 1E10
-best_exposure = 0
+        self.__acquisition_timer = cv2.TickMeter()
+        self.__frame_counter = 0
+        self.__error_counter = 0
+        self.__acquisition_running = False
 
-g_hue_min = 80
-g_hue_max = 150
+        ids_peak.Library.Initialize()
 
-g_contrast_optimal = 30
-g_contrast_diff = 3
-g_contrast_control = 32
-g_contrast_control_min = 32
-g_contrast_control_max = 48
-g_contrast_control_step = 2
+        if self.__open_device():
+            try:
+                if not self.__start_acquisition():
+                    print("Unable to start acquisition!")
+                    sys.exit(1)
+            except Exception as e:
+                print(f"Exception: {str(e)}")
+                sys.exit(1)
 
-g_max_attempts = 1
-g_brightness_control = 0
+        else:
+            self.__destroy_all()
+            sys.exit(1)
 
+    def __del__(self):
+        self.__destroy_all()
 
-def estimate_brightness(img):
-    im = img.convert('L')
-    stat = ImageStat.Stat(im)
-    return stat.rms[0]
+    def __destroy_all(self):
+        self.__stop_acquisition()
+        self.__close_device()
+        ids_peak.Library.Close()
 
+    def __open_device(self):
+        try:
+            device_manager = ids_peak.DeviceManager.Instance()
+            device_manager.Update()
 
-def estimate_hue(img):
-    im = img.convert('HSV')
-    stat = ImageStat.Stat(im)
-    return stat.mean[0]
+            if device_manager.Devices().empty():
+                print("No device found!")
+                return False
 
+            for device in device_manager.Devices():
+                if device.IsOpenable():
+                    self.__device = device.OpenDevice(ids_peak.DeviceAccessType_Control)
+                    break
 
-def estimate_contrast(img):
-    im = img.convert('L')
-    stat = ImageStat.Stat(im)
-    return stat.stddev[0]
+            if self.__device is None:
+                print("Device could not be opened!")
+                return False
 
+            datastreams = self.__device.DataStreams()
+            if datastreams.empty():
+                print("Device has no DataStream!")
+                self.__device = None
+                return False
 
-def calc_optimal_exposure(cam, stream):
-    print("Calculating optimal exposure")
-    global brightness_slope
-    global brightness_intercept
-    global g_exposure_absolute
-    global best_brightness_diff
-    g_exposure_absolute = g_exposure_absolute_min
-    r1 = capture_and_calculate(cam, stream)
-    g_exposure_absolute = g_exposure_absolute_max
-    # Reset diff before next capture
-    best_brightness_diff = 1E10
-    r2 = capture_and_calculate(cam, stream)
-    brightness_slope = (r2['brightness'] - r1['brightness']) / \
-        (g_exposure_absolute_max - g_exposure_absolute_min)
-    brightness_intercept = r2['brightness'] - \
-        brightness_slope * g_exposure_absolute_max
-    if brightness_slope:
-        g_exposure_absolute = int(
-            (g_brightness_optimal - brightness_intercept)/brightness_slope)
-    # This is a hack to account for the camera not giving us accurate images/exposures
-    if g_exposure_absolute <= g_exposure_absolute_min or g_exposure_absolute >= g_exposure_absolute_max:
-        g_exposure_absolute = int(
-            (g_exposure_absolute_min + g_exposure_absolute_max)/2)
-    print(f"\nOptimal Exposure: {g_exposure_absolute}\n")
+            self.__datastream = datastreams[0].OpenDataStream()
 
+            self.__nodemap_remote_device = self.__device.RemoteDevice().NodeMaps()[0]
 
-def capture_and_calculate(cam,stream):
-    cam.video_capture.set_brightness(g_brightness_control)
-    # cam.video_capture.set_exposure(g_exposure_absolute)
-    # cam.video_capture.set_contrast(g_contrast_control)
-    # Skip one frame
-    next(stream)
-    image_bytes = BytesIO(next(stream))
-    image = Image.open(image_bytes)
-    width = image.size[0]
-    height = image.size[1]
-    image = image.crop((g_xoffset, g_yoffset, width -
-                       g_xoffset, height - g_yoffset))
-    result = {
-        "exposure": g_exposure_absolute,
-        "contrast_control": g_contrast_control,
-        "image": image_bytes,
-        "brightness": estimate_brightness(image),
-        "contrast": estimate_contrast(image),
-        "hue": estimate_hue(image)
-    }
-    return result
+            try:
+                self.__nodemap_remote_device.FindNode("UserSetSelector").SetCurrentEntry("Default")
+                self.__nodemap_remote_device.FindNode("UserSetLoad").Execute()
+                self.__nodemap_remote_device.FindNode("UserSetLoad").WaitUntilDone()
+            except ids_peak.Exception:
+                pass
 
+            payload_size = self.__nodemap_remote_device.FindNode("PayloadSize").Value()
+            buffer_count_max = self.__datastream.NumBuffersAnnouncedMinRequired()
 
-def capture_optimised(cam,stream):
-    global g_exposure_absolute
-    global g_contrast_control
-    global best_exposure
-    try:
-        best_brightness_diff = 1E10
-        ret = {}
-        count = 0
-        for count in range(0, g_max_attempts):
-            ret = capture_and_calculate(cam,stream)
-            print(f"{ret}")
-            brightness = ret['brightness']
-            hue = ret['hue']
-            contrast = ret['contrast']
-            brightness_diff = g_brightness_optimal - brightness
-            contrast_diff = g_contrast_optimal - contrast
-            if abs(brightness_diff) < abs(best_brightness_diff):
-                # An optimisation was found
-                best_brightness_diff = brightness_diff
-                best_exposure = g_exposure_absolute
-            is_brightness_optimised = not(g_enable_brightness_optimisation) or abs(
-                brightness_diff) <= g_brightness_diff
-            is_hue_optimised = not(g_enable_hue_optimisation) or not (g_hue_min <= hue <= g_hue_max) 
-            is_contrast_optimised = not(g_enable_contrast_optimisation) or abs(
-                contrast_diff) <= g_contrast_diff
-            if not (is_brightness_optimised and is_hue_optimised and is_contrast_optimised):
-                if not is_brightness_optimised:
-                    g_exposure_absolute += int((brightness_diff /
-                                                abs(brightness_diff))*g_exposure_absolute_step)
-                    if g_exposure_absolute > g_exposure_absolute_max:
-                        g_exposure_absolute = g_exposure_absolute_max
-                    elif g_exposure_absolute < g_exposure_absolute_min:
-                        g_exposure_absolute = g_exposure_absolute_min
-                if not is_contrast_optimised:
-                    g_contrast_control += int((contrast_diff /
-                                               abs(contrast_diff))*g_contrast_control_step)
-                    if g_contrast_control > g_contrast_control_max:
-                        g_contrast_control = g_contrast_control_max
-                    elif g_contrast_control < g_contrast_control_min:
-                        g_contrast_control = g_contrast_control_min
-            else:
-                print("\nOptimised!\n")
-                g_exposure_absolute = best_exposure
-                break
-        now = int(datetime.now().timestamp())
-        tmppath = f"/tmp/{now}.jpg"
-        fpath = f"{g_path}/{now}.jpg"
-        image = ret.pop('image')
-        with open(tmppath, 'wb') as f:
-            f.write(image.getbuffer())
-        # Only needed until we figure out how to use crop directly within v4l2
-        call(f"convert {tmppath} -crop {g_width-2*g_xoffset}x{g_height-2*g_yoffset}+{g_xoffset}+{g_yoffset} {fpath}", shell=True)
-        ret['path'] = fpath
-        ret['attempts'] = count + 1
-        return ret
-    except Exception as e:
-        print(str(e))
-        return {"error": str(e)}
+            for i in range(buffer_count_max):
+                buffer = self.__datastream.AllocAndAnnounceBuffer(payload_size)
+                self.__datastream.QueueBuffer(buffer)
 
+            return True
+        except ids_peak.Exception as e:
+            print(f"Exception: {str(e)}")
 
-def initialise_camera(
-        device: int = 0,
-        width: int = 3264,
-        height: int = 2448,
-        xoffset: int = g_xoffset,
-        yoffset: int = g_yoffset,
-        skip: int = 2,
-        max_attempts: int = g_max_attempts,
-        brightness_control: int = g_brightness_control,
-        brightness_optimal: int = g_brightness_optimal,
-        brightness_diff: int = g_brightness_diff,
-        enable_single_color_rejection: bool = g_enable_single_color_rejection,
-        enable_brightness_optimisation: bool = g_enable_brightness_optimisation,
-        enable_hue_optimisation: bool = g_enable_hue_optimisation,
-        enable_contrast_optimisation: bool = g_enable_contrast_optimisation,
-        path: str = g_path,
-        hue_min: int = g_hue_min,
-        hue_max: int = g_hue_max,
-        contrast_optimal: int = g_contrast_optimal,
-        contrast_diff: int = g_contrast_diff,
-        contrast_control_min: int = g_contrast_control_min,
-        contrast_control_max: int = g_contrast_control_max,
-        contrast_control_step: int = g_contrast_control_step,
-        exposure_absolute_min: int = g_exposure_absolute_min,
-        exposure_absolute_max: int = g_exposure_absolute_max,
-        exposure_absolute_step: int = g_exposure_absolute_step,
-        exposure_auto: bool = g_exposure_auto,
-        logfile: str = "accumen_camera.log",
-):
-    global g_path
-    global g_xoffset
-    global g_yoffset
-    global g_enable_single_color_rejection     #seek
-    global g_enable_brightness_optimisation
-    global g_enable_hue_optimisation
-    global g_enable_contrast_optimisation
-    global g_brightness_optimal
-    global g_brightness_diff
-    global g_hue_min
-    global g_hue_max
-    global g_contrast_optimal
-    global g_contrast_diff
-    global g_contrast_control_min
-    global g_contrast_control_max
-    global g_contrast_control_step
-    global g_exposure_absolute_min
-    global g_exposure_absolute_max
-    global g_exposure_absolute_step
-    global g_exposure_auto
-    global g_max_attempts
-    global g_brightness_control
-    #global cam
-    #global stream
-    g_xoffset = xoffset
-    g_yoffset = yoffset
-    g_enable_single_color_rejection = enable_single_color_rejection
-    g_enable_brightness_optimisation = enable_brightness_optimisation
-    g_enable_hue_optimisation = enable_hue_optimisation
-    g_enable_contrast_optimisation = enable_contrast_optimisation
-    g_hue_min = hue_min
-    g_hue_max = hue_max
-    g_contrast_optimal = contrast_optimal
-    g_contrast_diff = contrast_diff
-    g_contrast_control_min = contrast_control_min
-    g_contrast_control_max = contrast_control_max
-    g_contrast_control_step = contrast_control_step
-    g_brightness_control = brightness_control
-    g_brightness_optimal = brightness_optimal
-    g_brightness_diff = brightness_diff
-    g_exposure_auto = exposure_auto
-    g_exposure_absolute_min = exposure_absolute_min
-    g_exposure_absolute_max = exposure_absolute_max
-    g_exposure_absolute_step = exposure_absolute_step
-    g_path = path
-    g_max_attempts = max_attempts
-    assert os.path.exists(g_path), f"Directory '{g_path}' does not exist"
-    logging.basicConfig(
-        level=logging.INFO,
-        filename=logfile,
-        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    )
-    print("Starting Camera")
-    try:
-        cam = Device.from_id(device)
-    except Exception as e:
-        print(str(e))
-        devices = list(iter_video_capture_devices())
-        assert len(devices) > 0, "Camera not found"
-        cam = devices[0]
-    # Camera is now open and locked.
-    # And it's held open until we close it
-    cam.video_capture.set_format(width, height, "MJPG")
-    # WIP: Cropping does not appear to be supported by this camera.
-    #cam.video_capture.set_crop(xoffset, yoffset, width, height)
-    stream = iter(cam)
-    # Camera is started once we call next(stream)
-    # We skip a few frames at the start
-    for i in range(skip):
-        next(stream)
-    # calc_optimal_exposure(cam, stream)
-    return cam, stream
+        return False
 
+    def __close_device(self):
+        self.__stop_acquisition()
+
+        if self.__datastream is not None:
+            try:
+                for buffer in self.__datastream.AnnouncedBuffers():
+                    self.__datastream.RevokeBuffer(buffer)
+            except Exception as e:
+                print(f"Exception: {str(e)}")
+
+    def __start_acquisition(self):
+        if self.__device is None:
+            return False
+        if self.__acquisition_running is True:
+            return True
+
+        try:
+            max_fps = self.__nodemap_remote_device.FindNode("AcquisitionFrameRate").Maximum()
+            target_fps = int(min(max_fps, FPS_LIMIT))
+            self.__nodemap_remote_device.FindNode("AcquisitionFrameRate").SetValue(target_fps)
+        except ids_peak.Exception:
+            print("Warning: Unable to limit fps, AcquisitionFrameRate Node is not supported by the connected camera.")
+
+        self.__nodemap_remote_device.FindNode("ExposureTime").SetValue(EXPOSURE)
+        self.__nodemap_remote_device.FindNode("GainAuto").SetCurrentEntry(GainAuto)
+        self.__nodemap_remote_device.FindNode("BalanceWhiteAuto").SetCurrentEntry("Continuous")
+
+        self.__acquisition_timer.start()
+        self.__acquisition_timer.reset()
+
+        try:
+            self.__nodemap_remote_device.FindNode("TLParamsLocked").SetValue(1)
+            self.__datastream.StartAcquisition()
+            self.__nodemap_remote_device.FindNode("AcquisitionStart").Execute()
+            self.__nodemap_remote_device.FindNode("AcquisitionStart").WaitUntilDone()
+        except Exception as e:
+            print(f"Exception: {str(e)}")
+            return False
+
+        self.__acquisition_running = True
+
+        return True
+
+    def __stop_acquisition(self):
+        if self.__device is None or self.__acquisition_running is False:
+            return
+
+        try:
+            remote_nodemap = self.__device.RemoteDevice().NodeMaps()[0]
+            remote_nodemap.FindNode("AcquisitionStop").Execute()
+            self.__datastream.KillWait()
+            self.__datastream.StopAcquisition(ids_peak.AcquisitionStopMode_Default)
+            self.__datastream.Flush(ids_peak.DataStreamFlushMode_DiscardAll)
+            self.__acquisition_running = False
+
+            if self.__nodemap_remote_device is not None:
+                try:
+                    self.__nodemap_remote_device.FindNode("TLParamsLocked").SetValue(0)
+                except Exception as e:
+                    print(f"Exception: {str(e)}")
+
+        except Exception as e:
+            print(f"Exception: {str(e)}")
+
+    def capture_image(self):
+        try:
+            if self.displayed_image:
+                image_path = f"pd_{self.filename}.jpg"
+                self.displayed_image.save(image_path, "JPEG")
+                self.filename += 1
+                print(f"Image saved as {image_path}.")
+        except Exception as e:
+            print(f"Error: {str(e)}")
+
+    def run(self):
+        while True:
+            try:
+                buffer = self.__datastream.WaitForFinishedBuffer(5000)
+                ipl_image = ids_peak_ipl_extension.BufferToImage(buffer)
+                converted_ipl_image = ipl_image.ConvertTo(ids_peak_ipl.PixelFormatName_BGRa8)
+                self.__datastream.QueueBuffer(buffer)
+
+                image_np_array = converted_ipl_image.get_numpy_1D()
+                image = cv2.cvtColor(image_np_array, cv2.COLOR_BGR2RGB)
+                self.displayed_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+                self.__frame_counter += 1
+                self.update_counters()
+            except ids_peak.Exception as e:
+                self.__error_counter += 1
+                print(f"Exception: {str(e)}")
+
+    def update_counters(self):
+        print(f"Acquired: {self.__frame_counter}, Errors: {self.__error_counter}")
+
+def main():
+    camera_cli = CameraCLI()
+    camera_cli.run()
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 2:
-        # test: python camera.py 3 /tmp
-        # feeding the wrong device ID will cause auto-detection
-        cam,stream = initialise_camera(device=int(sys.argv[1]), path=sys.argv[2])
-    else:
-        cam,stream = initialise_camera()
-    capture_optimised(cam, stream)
+    main()
 
