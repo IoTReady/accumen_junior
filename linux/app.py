@@ -49,7 +49,7 @@ g_exposure_absolute_max = 1000
 g_exposure_absolute_step = 25
 brightness_slope = 1
 brightness_intercept = 0
-best_brightness_diff = 1E10
+best_brightness_diff = 1e10
 best_exposure = 0
 
 g_hue_min = 80
@@ -63,7 +63,6 @@ g_contrast_control_max = 48
 g_contrast_control_step = 2
 
 g_max_attempts = 50
-
 
 
 try:
@@ -120,25 +119,13 @@ def download_ota_file():
         mimetype="application/octet-stream",
     )
 
-def read_color_values():
-    # Replace this with actual file reading logic
-    with open("linux/rgb_values.json", "r+") as file:
-        color_values = json.load(file)
-    return color_values
-
 
 @app.get("/rgb")
 def get_rgb():
-    try:
-        color_values = read_color_values()
-        response_json = json.dumps(color_values)
-        return response_json, 200, {'Content-Type': 'application/json'}
-        
-    except Exception as e:
-        # Handle any exceptions that may occur during the process
-        error_response = {"error": str(e)}
-        return json.dumps(error_response), 500, {'Content-Type': 'application/json'}
-    
+    red, green, blue = g_led_rgb
+    response_json = {"red": red, "green": green, "blue": blue}
+    return json.dumps(response_json), 200, {"Content-Type": "application/json"}
+
 
 @app.post("/logs")
 @app.post("/log")
@@ -190,7 +177,7 @@ def main(
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
     cam, stream = initialise_camera(
-        device=device, 
+        device=device,
         path=path,
         skip=skip,
         max_attempts=max_attempts,
@@ -210,7 +197,7 @@ def main(
         exposure_absolute_min=exposure_absolute_min,
         exposure_absolute_max=exposure_absolute_max,
         exposure_absolute_step=exposure_absolute_step,
-        exposure_auto=exposure_auto
+        exposure_auto=exposure_auto,
     )
     try:
         init_service(host, port)
