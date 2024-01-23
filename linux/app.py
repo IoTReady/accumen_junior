@@ -30,6 +30,9 @@ LOG_LEVELS = {
     "error": log.error,
 }
 
+# RGB values for the LED ring
+g_led_rgb = {255, 255, 255}
+
 g_path = "/tmp"
 
 g_enable_single_color_rejection = True
@@ -153,10 +156,15 @@ def main(
     exposure_absolute_max: int = g_exposure_absolute_max,
     exposure_absolute_step: int = g_exposure_absolute_step,
     exposure_auto: bool = g_exposure_auto,
+    red: int = 255,
+    green: int = 255,
+    blue: int = 255,
 ):
     global cam
     global stream
     global exiting
+    global g_led_rgb
+    g_led_rgb = {red, green, blue}
     logging.basicConfig(
         level=logging.DEBUG,
         filename=logfile,
