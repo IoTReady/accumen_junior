@@ -120,6 +120,25 @@ def download_ota_file():
         mimetype="application/octet-stream",
     )
 
+def read_color_values():
+    # Replace this with actual file reading logic
+    with open("linux/rgb_values.json", "r+") as file:
+        color_values = json.load(file)
+    return color_values
+
+
+@app.get("/rgb")
+def get_rgb():
+    try:
+        color_values = read_color_values()
+        response_json = json.dumps(color_values)
+        return response_json, 200, {'Content-Type': 'application/json'}
+        
+    except Exception as e:
+        # Handle any exceptions that may occur during the process
+        error_response = {"error": str(e)}
+        return json.dumps(error_response), 500, {'Content-Type': 'application/json'}
+    
 
 @app.post("/logs")
 @app.post("/log")
