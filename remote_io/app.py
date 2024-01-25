@@ -25,7 +25,7 @@ config = {
     "status_led_1": 2,
     "status_led_2": 12,
     "neopixel": 5,
-    "num_pixels": 60,
+    "num_pixels": 120,
     "pixel_delay": 50,
     "i2c_sda": 13,
     "i2c_scl": 16,
