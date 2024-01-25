@@ -268,7 +268,7 @@ def check_rgb():
         b_value = data.get("blue")
         return r_value, g_value, b_value
     except Exception as e:
-        logprint("error", f"Error during API call: {e}, using default values {default_r_value}, {default_g_value}, {default_b_value}")
+        logprint("error", "Error during API call")
         return default_r_value, default_g_value, default_b_value
 
 def check_ota():
