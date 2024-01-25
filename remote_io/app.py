@@ -368,6 +368,9 @@ def healthcheck():
 def start():
     print("I:", "Starting app: " + __name__)
     try:
+        r_value = 40
+        g_value = 50
+        b_value = 40
         count = 0
         lcd.clear()
         lcd.backlight_on()
