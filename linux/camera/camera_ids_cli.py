@@ -1,18 +1,19 @@
 import os
 
 # Set the PEAK_PATH environment variable
-script_directory = os.path.dirname(os.path.realpath(__file__))
-peak_path = os.path.realpath(os.path.join(script_directory, ".."))
+peak_path = "/home/iotready/accumen_junior/linux/camera/ids-peak/"
 os.environ["PEAK_PATH"] = peak_path
 
 # Set the LD_LIBRARY_PATH environment variable
-lib_path = "/home/iotready/accumen_junior/linux/camera/ids-peak/lib/"
+lib_path = "/home/iotready/accumen_junior/linux/camera/ids-peak/lib"
 os.environ["LD_LIBRARY_PATH"] = lib_path
 
 # Set the GENICAM_GENTL32_PATH and GENICAM_GENTL64_PATH environment variables
 genicam_path = os.path.join(peak_path, "lib", "ids", "cti")
 os.environ["GENICAM_GENTL32_PATH"] = f"{genicam_path}:{os.environ.get('GENICAM_GENTL32_PATH', '')}"
 os.environ["GENICAM_GENTL64_PATH"] = f"{genicam_path}:{os.environ.get('GENICAM_GENTL64_PATH', '')}"
+
+
 
 # Print the environment variables (optional)
 print("PEAK_PATH:", os.environ.get("PEAK_PATH"))
