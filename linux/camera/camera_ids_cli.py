@@ -139,14 +139,16 @@ def capture_optimised(device,remote_device_nodemap):
         datastream.StopAcquisition()
         # remote_device_nodemap.FindNode("ExposureMode").SetCurrentEntry("Continuous")
         now = int(datetime.now().timestamp())
-        tmppath = f"/tmp/{now}.jpg"
+        tmppath_png = f"/tmp/{now}.png"
+        tmppath= f"/tmp/{now}.jpg"
         fpath = f"{g_path}/{now}.jpg"
         #save image here
         picture = color_image.get_numpy_3D() 
         image = Image.fromarray(picture) # Convert the image data to a PIL Image object
-        image.save(tmppath,'PNG')
+        image.save(tmppath_png,'PNG')
         # Only needed until we figure out how to use crop directly within ids_peak 
-        call(f"convert {tmppath} -crop {g_width-2*g_xoffset}x{g_height-2*g_yoffset}+{g_xoffset}+{g_yoffset} {fpath}", shell=True)
+        call(f"convert {tmppath_png} -crop {g_width-2*g_xoffset}x{g_height-2*g_yoffset}+{g_xoffset}+{g_yoffset} {fpath}", shell=True)
+        call(f"convert {tmppath_png} {tmppath}")
         ret['path'] = fpath
         ret['attempts'] = count + 1
         ret['image_obj'] = image
