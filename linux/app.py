@@ -11,7 +11,7 @@ import typer
 import flask
 import semver
 from os import path, getcwd
-from camera.camera import initialise_camera, capture_optimised
+from camera.camera_ids_cli import close_cam, initialise_camera, capture_optimised
 from api_client import validate_image
 from mdns import init_service
 
@@ -115,18 +115,21 @@ def main(
         filename=logfile,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    cam, stream = initialise_camera(
-        device=device, 
-        path=path,
-        skip=skip,
-    )
+    #cam, stream = initialise_camera(
+    #    device=device, 
+    #    path=path,
+    #    skip=skip,
+    #)
+    cam, stream = initialise_camera(device) ## add device sel. control
     try:
         init_service(host, port)
     except Exception as e:
         print("Exception in mdns.init_service:", str(e))
     app.run(host=host, port=port, debug=False)
-    stream.close()
-    cam.close()
+    #stream.close()
+    #cam.close()
+    #close camera and library cleanly
+    close_cam()
 
 
 if __name__ == "__main__":

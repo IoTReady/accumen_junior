@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IDS PYCAM Documentation</title>
+    <style>
+        /* Apply styles to the entire documentation page */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+
+        /* Style for the page header */
+        header {
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        /* Style for the main content container */
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Style for section headers */
+        h2 {
+            font-size: 24px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        h3 {
+            font-size: 20px;
+            margin-top: 15px;
+            color: #555;
+        }
+
+        /* Style for code blocks */
+        pre {
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            padding: 10px;
+            overflow-x: auto;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        code {
+            font-family: Consolas, Monaco, monospace;
+            color: #333;
+        }
+
+        /* Style for paragraphs and text */
+        p {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        /* Style for buttons */
+        button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        /* Add more specific styles as needed */
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 768px) {
+            main {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>IDS PYCAM Documentation</h1>
+    </header>
+
+    <section id="introduction">
+        <h2>Introduction</h2>
+        <p>
+            This documentation provides an in-depth explanation of the Python script "IDS PYCAM." IDS PYCAM is a script designed for capturing images using an IDS camera. It utilizes the IDS Peak library and provides a graphical user interface (GUI) for capturing and displaying images.
+        </p>
+    </section>
+
+    <section id="dependencies">
+        <h2>Dependencies</h2>
+        <p>
+            IDS PYCAM relies on several Python libraries and dependencies. Ensure you have the following libraries installed:
+        </p>
+        <ul>
+            <li><code>os</code></li>
+            <li><code>logging</code></li>
+            <li><code>ids_peak.ids_peak</code></li>
+            <li><code>io.BytesIO</code></li>
+            <li><code>datetime.datetime</code></li>
+            <li><code>subprocess.call</code></li>
+            <li><code>PIL.Image</code></li>
+            <li><code>PIL.ImageStat</code></li>
+            <li><code>tkinter</code></li>
+            <li><code>time.sleep</code></li>
+        </ul>
+    </section>
+
+    <section id="initialization">
+        <h2>Initialization</h2>
+        <p>
+            The "Initialization" phase of the IDS PYCAM script involves setting up the camera, configuring its parameters, and preparing it for image capture. This section provides a detailed explanation of the initialization process.
+        </p>
+
+        <h3>Initializing the IDS Peak Library</h3>
+        <p>
+            To begin, the script initializes the IDS Peak library, which is essential for communication with the IDS camera.
+        </p>
+        <pre><code>
+            try:
+                ids_peak.Library.Initialize()
+            except Exception as e:
+                print(f"IDS Camera Init Error: {e}")
+        </code></pre>
+        <p>
+            The <code>ids_peak.Library.Initialize()</code> function is called to initialize the library. Any initialization errors are caught and displayed as an exception.
+        </p>
+
+        <h3>Connecting to the Camera</h3>
+        <p>
+            After initializing the library, the script establishes a connection to the camera. It detects available devices and selects the first one for exclusive access.
+        </p>
+        <pre><code>
+            device_manager = ids_peak.DeviceManager.Instance()
+            device_manager.Update()
+            device_descriptors = device_manager.Devices()
+
+            print("Found Devices: " + str(len(device_descriptors)))
+            for device_descriptor in device_descriptors:
+                print(device_descriptor.DisplayName())
+
+            device = device_descriptors[0].OpenDevice(ids_peak.DeviceAccessType_Exclusive)
+            print("Opened Device: " + device.DisplayName())
+        </code></pre>
+        <p>
+            The script uses the <code>ids_peak.DeviceManager.Instance()</code> function to obtain the device manager instance and updates it. It then retrieves the list of available device descriptors and opens the first device for exclusive access.
+        </p>
+
+        <h3>Configuring Camera Parameters</h3>
+        <p>
+            With the camera connected, the script proceeds to configure various camera parameters, such as exposure time, gain, image cropping, brightness, and white balance.
+        </p>
+        <pre><code>
+            # Set software trigger
+            remote_device_nodemap.FindNode("TriggerSelector").SetCurrentEntry("ExposureStart")
+            remote_device_nodemap.FindNode("TriggerSource").SetCurrentEntry("Software")
+            remote_device_nodemap.FindNode("TriggerMode").SetCurrentEntry("On")
+
+            # Configure exposure time
+            exposure_time = remote_device_nodemap.FindNode("ExposureTime").Value()
+            print(f"Exposure Time: {exposure_time}")
+            min_exposure_time = remote_device_nodemap.FindNode("ExposureTime").Minimum()
+            max_exposure_time = remote_device_nodemap.FindNode("ExposureTime").Maximum()
+            print(f"Minimum Exposure: {min_exposure_time}  Maximum Exposure: {max_exposure_time}")
+            remote_device_nodemap.FindNode("ExposureTime").SetValue(500000)  # Set exposure time to 500,000 microseconds
+        </code></pre>
+        <p>
+            In this section, the script sets the software trigger, retrieves and sets the exposure time, and demonstrates how to set exposure time to 500,000 microseconds. Similar configurations are performed for gain, image cropping, brightness, and white balance.
+        </p>
+
+        <!-- Add more configuration details here as needed -->
+
+    </section>
+
+    <section id="image-capture">
+        <h2>Image Capture</h2>
+        <p>
+            IDS PYCAM captures images with optimized settings. It uses software triggering to capture images, converts them to RGB format, and provides functions for saving and displaying the captured images.
+        </p>
+        <!-- Add code snippets and explanations for image capture -->
+    </section>
+
+    <section id="graphical-user-interface">
+        <h2>Graphical User Interface (GUI)</h2>
+        <p>
+            The script includes a GUI for user interaction. Users can initiate image capture, view captured images, and exit the application. The GUI is built using the tkinter library.
+        </p>
+        <!-- Add code snippets and explanations for the GUI -->
+    </section>
+
+    <section id="usage">
+        <h2>Usage</h2>
+        <p>
+            To use IDS PYCAM, follow these steps:
+        </p>
+        <ol>
+            <li>Ensure you have all the required dependencies installed.</li>
+            <li>Run the script.</li>
+            <li>Click the "Capture" button to capture images.</li>
+            <li>View captured images in the GUI window.</li>
+            <li>Click the "Exit" button to close the application.</li>
+        </ol>
+        <!-- Add any additional usage instructions -->
+    </section>
+
+    <section id="customization">
+        <h2>Customization</h2>
+        <p>
+            Developers can customize the script by modifying camera settings, GUI elements, or integrating additional features.
+        </p>
+        <!-- Add information on how to customize the script -->
+    </section>
+
+    <footer>
+        <p>&copy; 2024 IDS PYCAM Documentation</p>
+    </footer>
+</body>
+</html>
+
