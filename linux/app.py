@@ -56,6 +56,9 @@ LOG_LEVELS = {
     "error": log.error,
 }
 
+# RGB values for the LED ring
+g_led_rgb = (255, 255, 255)
+
 g_path = "/tmp"
 
 
@@ -116,6 +119,13 @@ def download_ota_file():
     )
 
 
+@app.get("/rgb")
+def get_rgb():
+    red, green, blue = g_led_rgb
+    response_json = {"red": red, "green": green, "blue": blue}
+    return flask.Response(json.dumps(response_json), status=200, mimetype="application/json")
+
+
 @app.post("/logs")
 @app.post("/log")
 def firmware_log():
@@ -136,6 +146,8 @@ def main(
     global cam
     global stream
     global exiting
+    global g_led_rgb 
+    g_led_rgb = (red, green, blue)
     logging.basicConfig(
         level=logging.DEBUG,
         filename=logfile,

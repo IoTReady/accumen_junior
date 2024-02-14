@@ -25,7 +25,7 @@ config = {
     "status_led_1": 2,
     "status_led_2": 12,
     "neopixel": 5,
-    "num_pixels": 60,
+    "num_pixels": 120,
     "pixel_delay": 50,
     "i2c_sda": 13,
     "i2c_scl": 16,
@@ -110,12 +110,12 @@ def switch_off_neopixels():
     neopixel_array.write()
 
 
-def switch_on_neopixels():
+def switch_on_neopixels(r_value=40, g_value=50, b_value=40):
     switch_off_neopixels()
     sleep_ms(500)
-    positions = [0, 1, 2, 14, 15, 16, 28, 29, 30, 42, 43, 44]
-    for i in positions:
-        neopixel_array[i] = (255, 255, 220)
+    # positions = [0, 1, 2, 14, 15, 16, 28, 29, 30, 42, 43, 44]
+    for i in range(120):
+        neopixel_array[i] = (r_value, g_value, b_value)
     neopixel_array.write()
 
 
@@ -253,6 +253,23 @@ def connect_lan():
     lan.active(1)
     sleep_ms(10000)
 
+def check_rgb():
+    default_r_value = 40
+    default_g_value = 50
+    default_b_value = 40
+    base_url = config.get("base_url")
+    url = "{}/rgb".format(base_url)
+    try:
+        res = requests.get(url)
+        logprint("debug", res.text)
+        data = res.json()
+        r_value = data.get("red")
+        g_value = data.get("green")
+        b_value = data.get("blue")
+        return r_value, g_value, b_value
+    except Exception as e:
+        logprint("error", "Error during API call")
+        return default_r_value, default_g_value, default_b_value
 
 def check_ota():
     base_url = config.get("base_url")
@@ -351,18 +368,22 @@ def healthcheck():
 def start():
     print("I:", "Starting app: " + __name__)
     try:
+        r_value = 40
+        g_value = 50
+        b_value = 40
         count = 0
         lcd.clear()
         lcd.backlight_on()
         set_status_led(status_led_2, False)
         display_brandname()
-        switch_on_neopixels()
         connect_lan()
         gc.collect()
         healthcheck()
         if is_connected:
+            r_value, g_value, b_value = check_rgb()
             check_ota()
             display_waiting()
+        switch_on_neopixels(r_value, g_value, b_value)
         logprint("debug", "Heap Memory: " + str(gc.mem_free()))
         timer1 = Timer(1)
         timer1.init(
