@@ -1,11 +1,11 @@
 import os
 
 # Set the PEAK_PATH environment variable
-peak_path = "/home/iotready/accumen_junior/linux/camera/ids-peak/"
+peak_path = "/home/ccmsadmin/accumen/ids-peak_2.6.1.0-16200_amd64/"
 os.environ["PEAK_PATH"] = peak_path
 
 # Set the LD_LIBRARY_PATH environment variable
-lib_path = "/home/iotready/accumen_junior/linux/camera/ids-peak/lib"
+lib_path = "/home/ccmsadmin/accumen/ids-peak_2.6.1.0-16200_amd64/lib/"
 os.environ["LD_LIBRARY_PATH"] = lib_path
 
 # Set the GENICAM_GENTL32_PATH and GENICAM_GENTL64_PATH environment variables
@@ -29,7 +29,7 @@ from datetime import datetime
 from subprocess import call
 from PIL import Image, ImageStat
 from ids_peak_ipl import ids_peak_ipl as ids_ipl
-import tkinter as tk
+#import tkinter as tk
 from time import sleep
 
 
@@ -41,8 +41,15 @@ g_xoffset = 408
 g_yoffset = 0
 g_path = "/tmp"
 
+
+datastream = None
+remote_device_nodemap = None
+device =None
+acquisition_running = False
+
 def initialise_camera(device_sel):
     #init library
+    global remote_device_nodemap
     try:
         ids_peak.Library.Initialize()
         device_manager = ids_peak.DeviceManager.Instance()
@@ -55,14 +62,21 @@ def initialise_camera(device_sel):
 
         device = device_descriptors[device_sel].OpenDevice(ids_peak.DeviceAccessType_Exclusive)
         print("Opened Device: " + device.DisplayName())
-        remote_device_nodemap = device.RemoteDevice().NodeMaps()[0]
+        remote_device_nodemap = device.RemoteDevice().NodeMaps()[0] 
+        try:
+            remote_device_nodemap.FindNode("UserSetSelector").SetCurrentEntry("Default")
+            remote_device_nodemap.FindNode("UserSetLoad").Execute()
+            remote_device_nodemap.FindNode("UserSetLoad").WaitUntilDone()
+        except ids_peak.Exception:
+            # Userset is not available
+            pass
     except Exception as e:
         print(f"IDS Camera Init Error: {e}")
     #software trigger
+
     remote_device_nodemap.FindNode("TriggerSelector").SetCurrentEntry("ExposureStart")
     remote_device_nodemap.FindNode("TriggerSource").SetCurrentEntry("Software")
     remote_device_nodemap.FindNode("TriggerMode").SetCurrentEntry("On")
-
 
     #set camera cofiguration
 
@@ -77,7 +91,7 @@ def initialise_camera(device_sel):
         print(f"Minimumposure:  {min_exposure_time}     Maximumposure: {max_exposure_time}")
 
         # change exposure
-        remote_device_nodemap.FindNode("ExposureTime").SetValue(500000) # in microseconds
+        remote_device_nodemap.FindNode("ExposureTime").SetValue(150000) # in microseconds
 
     except Exception as e:
         print(f"Exposure set error: {str(e)}")
@@ -86,9 +100,10 @@ def initialise_camera(device_sel):
     ## Gain  
     # Before accessing Gain, make sure GainSelector is set correctly
     # Set GainSelector to "AnalogAll" (str)
+    #remote_device_nodemap.FindNode("TLParamsLocked").SetValue(1)
     remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("AnalogAll")
     # Determine the current Gain (float)
-    value = remote_device_nodemap.FindNode("Gain").Value()
+    #value = remote_device_nodemap.FindNode("Gain").Value()
     # Set Gain to 1.0 (float)
     remote_device_nodemap.FindNode("Gain").SetValue(1.0)
 
@@ -130,8 +145,9 @@ def initialise_camera(device_sel):
     # contrast
     return device,remote_device_nodemap
 
-def capture_optimised(device,remote_device_nodemap):
-    
+def capture_optimised(device,remote_device_nodemap): 
+    global datastream 
+    global acquisition_running
     try:
         ret = {}
         count = 0
@@ -145,6 +161,7 @@ def capture_optimised(device,remote_device_nodemap):
         datastream.StartAcquisition()
         remote_device_nodemap.FindNode("AcquisitionStart").Execute()
         remote_device_nodemap.FindNode("AcquisitionStart").WaitUntilDone()
+        acquisition_running = True
 
         ##image grab ##
 
@@ -163,15 +180,17 @@ def capture_optimised(device,remote_device_nodemap):
         # remote_device_nodemap.FindNode("ExposureMode").SetCurrentEntry("Continuous")
         now = int(datetime.now().timestamp())
         tmppath_png = f"/tmp/{now}.png"
+        tmppath_tiff = f"/tmp/{now}.tiff"
         tmppath= f"/tmp/{now}.jpg"
         fpath = f"{g_path}/{now}.jpg"
         #save image here
         picture = color_image.get_numpy_3D() 
         image = Image.fromarray(picture) # Convert the image data to a PIL Image object
-        image.save(tmppath_png,'PNG')
+        #image.save(tmppath_png,'PNG')
+        image.save(tmppath_tiff,'TIFF')
         # Only needed until we figure out how to use crop directly within ids_peak 
-        call(f"convert {tmppath_png} -crop {g_width-2*g_xoffset}x{g_height-2*g_yoffset}+{g_xoffset}+{g_yoffset} {fpath}", shell=True)
-        call(f"convert {tmppath_png} {tmppath}")
+        #call(f"convert {tmppath_png} -crop {g_width-2*g_xoffset}x{g_height-2*g_yoffset}+{g_xoffset}+{g_yoffset} {fpath}", shell=True)
+        call(f"convert {tmppath_tiff} {tmppath}")
         ret['path'] = fpath
         ret['attempts'] = count + 1
         ret['image_obj'] = image
@@ -198,7 +217,56 @@ def save_image(image_byte, filename):
     print(f"Done saving pd{filename}.png")
     
 def close_cam():
+    close_device()
     ids_peak.Library.Close()
+
+def close_device():
+        """
+        Stop acquisition if still running and close datastream and nodemap of the device
+        """
+        # Stop Acquisition in case it is still running
+        stop_acquisition()
+
+        # If a datastream has been opened, try to revoke its image buffers
+        if datastream is not None:
+            try:
+                for buffer in datastream.AnnouncedBuffers():
+                    datastream.RevokeBuffer(buffer)
+            except Exception as e:
+                print(f"Error in closing device {e}")
+
+def stop_acquisition():
+        global remote_device_nodemap
+        global acquisition_running
+        """
+        Stop acquisition timer and stop acquisition on camera
+        :return:
+        """
+        # Check that a device is opened and that the acquisition is running. If not, return.
+        if device is None or acquisition_running is False:
+            return
+
+        # Otherwise try to stop acquisition
+        try:
+            remote_nodemap = device.RemoteDevice().NodeMaps()[0]
+            remote_nodemap.FindNode("AcquisitionStop").Execute()
+
+            # Stop and flush datastream
+            datastream.KillWait()
+            datastream.StopAcquisition(ids_peak.AcquisitionStopMode_Default)
+            datastream.Flush(ids_peak.DataStreamFlushMode_DiscardAll)
+
+            acquisition_running = False
+
+            # Unlock parameters after acquisition stop
+            if remote_device_nodemap is not None:
+                try:
+                    remote_device_nodemap.FindNode("TLParamsLocked").SetValue(0)
+                except Exception as e:
+                    print(f"Error in releasing remote_device_nodemap: {e}")
+
+        except Exception as e:
+            print(f"Error in stop_acquisition: {e}")
 
 if __name__ == '__main__':
     device_sel = 0
