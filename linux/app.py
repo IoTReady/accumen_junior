@@ -142,6 +142,9 @@ def main(
     host: str = "0.0.0.0",
     port: int = 8000,
     skip: int = 2,
+    red: int = 255,
+    green: int = 255,
+    blue: int = 255
 ):
     global cam
     global stream
