@@ -145,6 +145,17 @@ def initialise_camera(device_sel):
     # contrast
     return device,remote_device_nodemap
 
+
+def tiff_to_jpg(tiff_path, jpg_path):
+    try:
+        # Open the TIFF image
+        with Image.open(tiff_path) as img:
+            # Convert and save as JPEG
+            img.convert("RGB").save(jpg_path, "JPEG")
+        print(f"Conversion from {tiff_path} to {jpg_path} successful.")
+    except Exception as e:
+        print(f"Error during conversion: {e}")
+
 def capture_optimised(device,remote_device_nodemap): 
     global datastream 
     global acquisition_running
@@ -190,7 +201,7 @@ def capture_optimised(device,remote_device_nodemap):
         image.save(tmppath_tiff,'TIFF')
         # Only needed until we figure out how to use crop directly within ids_peak 
         #call(f"convert {tmppath_png} -crop {g_width-2*g_xoffset}x{g_height-2*g_yoffset}+{g_xoffset}+{g_yoffset} {fpath}", shell=True)
-        call(f"convert {tmppath_tiff} {tmppath}")
+        tiff_to_jpg(tmppath_tiff,tmppath)
         ret['path'] = fpath
         ret['attempts'] = count + 1
         ret['image_obj'] = image
