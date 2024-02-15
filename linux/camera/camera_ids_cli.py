@@ -47,6 +47,18 @@ remote_device_nodemap = None
 device =None
 acquisition_running = False
 
+EXPOSURE = 132840
+ANALOG_GAIN = 1.53
+SATURATION = 0.7  #Node not found
+GAMMA = 0.75
+DIGITAL_RED = 1.8125
+DIGITAL_GREEN = 1
+DIGITAL_BLUE = 1.44531
+OFFSET_X = 0
+OFFSET_Y = 0
+WIDTH = 4000
+HEIGHT= 3000
+
 def initialise_camera(device_sel):
     #init library
     global remote_device_nodemap
@@ -91,55 +103,49 @@ def initialise_camera(device_sel):
         print(f"Minimumposure:  {min_exposure_time}     Maximumposure: {max_exposure_time}")
 
         # change exposure
-        remote_device_nodemap.FindNode("ExposureTime").SetValue(150000) # in microseconds
+        remote_device_nodemap.FindNode("ExposureTime").SetValue(EXPOSURE) # in microseconds
 
     except Exception as e:
         print(f"Exposure set error: {str(e)}")
     # remote_device_nodemap.FindNode("ExposureTime").SetValue(100000) # in microseconds
     
-    ## Gain  
-    # Before accessing Gain, make sure GainSelector is set correctly
-    # Set GainSelector to "AnalogAll" (str)
+    """         Gain
+        *AnalogAll gain
+        *WhiteBalance is set by RGB gain    ->DigitalRed gain
+                                            ->DigitalGreen gain
+                                            ->DigitalBlue gain
+
+    """
     #remote_device_nodemap.FindNode("TLParamsLocked").SetValue(1)
     remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("AnalogAll")
-    # Determine the current Gain (float)
-    #value = remote_device_nodemap.FindNode("Gain").Value()
-    # Set Gain to 1.0 (float)
-    remote_device_nodemap.FindNode("Gain").SetValue(1.0)
+    remote_device_nodemap.FindNode("Gain").SetValue(ANALOG_GAIN)
 
-    ##BlackLevel
-    # Before accessing BlackLevel, make sure PixelFormat is set correctly
-    # Set PixelFormat to "Mono8" (str)
-    # remote_device_nodemap.FindNode("PixelFormat").SetCurrentEntry("Mono8")
-    # # Determine the current BlackLevel (float)
-    # value = remote_device_nodemap.FindNode("BlackLevel").Value()
-    # # Set BlackLevel to 1.0 (float)
-    # remote_device_nodemap.FindNode("BlackLevel").SetValue(1.0)
+    remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("DigitalRed")
+    remote_device_nodemap.FindNode("Gain").SetValue(DIGITAL_RED)
     
-    ## ROI (image crop)
-    # .Minimum(), .Maximum(), .Increment()
-    x = 0
-    y = 0
-    width = 4000
-    height = 3000
-    remote_device_nodemap.FindNode("OffsetX").SetValue(x)
-    remote_device_nodemap.FindNode("OffsetY").SetValue(y)
-    remote_device_nodemap.FindNode("Width").SetValue(width)
-    remote_device_nodemap.FindNode("Height").SetValue(height)
+    remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("DigitalGreen")
+    remote_device_nodemap.FindNode("Gain").SetValue(DIGITAL_GREEN)
+    
+    remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("DigitalBlue")
+    remote_device_nodemap.FindNode("Gain").SetValue(DIGITAL_BLUE)
 
+    # For using Gamma set LUTEnable to false
+    #Set LUTEnable to false (bool)
+    remote_device_nodemap.FindNode("LUTEnable").SetValue(False)
+    remote_device_nodemap.FindNode("Gamma").SetValue(GAMMA)
     
-    
-    ## brightness
-    # manual brightness control
-    #       ExposureTime = 300;GainSelector = "AnalogAll";Gain = 8.0
-    # auto brightness control
-    ExposureAuto = "Continuous"
-    GainAuto = "Continuous"
-    remote_device_nodemap.FindNode("ExposureAuto").SetCurrentEntry(ExposureAuto)
-    remote_device_nodemap.FindNode("GainAuto").SetCurrentEntry(GainAuto)
+    # Cropping and Image Size
+    remote_device_nodemap.FindNode("OffsetX").SetValue(OFFSET_X)
+    remote_device_nodemap.FindNode("OffsetY").SetValue(OFFSET_Y)
+    remote_device_nodemap.FindNode("Width").SetValue(WIDTH)
+    remote_device_nodemap.FindNode("Height").SetValue(HEIGHT)
 
-    ## white balance (auto)
-    remote_device_nodemap.FindNode("BalanceWhiteAuto").SetCurrentEntry("Continuous")
+    # Color Correction Mode
+    nodeMapRemoteDevice.FindNode("ColorCorrectionMode").SetCurrentEntry("Off")
+    ## Auto Settings 
+    #remote_device_nodemap.FindNode("ExposureAuto").SetCurrentEntry("Continuous")
+    #remote_device_nodemap.FindNode("GainAuto").SetCurrentEntry("Continuous")
+    #remote_device_nodemap.FindNode("BalanceWhiteAuto").SetCurrentEntry("Continuous")
 
     # hue
     # contrast
