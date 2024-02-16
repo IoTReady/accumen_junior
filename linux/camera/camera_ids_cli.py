@@ -182,6 +182,20 @@ def tiff_to_jpg(tiff_path, jpg_path):
     except Exception as e:
         print(f"Error during conversion: {e}")
 
+def alloc_and_announce_buffers():
+    try:
+        if datastream:
+            # Flush queue and prepare all buffers for revoking
+            datastream.Flush(ids_peak.DataStreamFlushMode_DiscardAll)
+
+        # Clear all old buffers
+        for buffer in datastream.AnnouncedBuffers():
+            datastream.RevokeBuffer(buffer)
+        return True
+    except Exception as e:
+        print(f"Exception: {str(e)}")
+
+
 def capture_optimised(device,remote_device_nodemap,path=g_path): 
     global g_path
     global datastream 
@@ -193,7 +207,12 @@ def capture_optimised(device,remote_device_nodemap,path=g_path):
         ret = {}
         count = 0
         #start image acquisition
-        datastream = device.DataStreams()[0].OpenDataStream()
+        if acquisition_running:
+            stop_acquisition()
+        if datastream is not None:
+            alloc_and_announce_buffers()
+        if not datastream:
+            datastream = device.DataStreams()[0].OpenDataStream()
         payload_size = remote_device_nodemap.FindNode("PayloadSize").Value()
         for i in range(datastream.NumBuffersAnnouncedMinRequired()):
             buffer = datastream.AllocAndAnnounceBuffer(payload_size)
@@ -271,6 +290,7 @@ def close_device():
         # If a datastream has been opened, try to revoke its image buffers
         if datastream is not None:
             try:
+                datastream.Flush(ids_peak.DataStreamFlushMode_DiscardAll)
                 for buffer in datastream.AnnouncedBuffers():
                     datastream.RevokeBuffer(buffer)
             except Exception as e:
