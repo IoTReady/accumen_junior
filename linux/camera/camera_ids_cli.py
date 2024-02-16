@@ -11,10 +11,10 @@ genicam_path = os.path.join(peak_path, "lib", "ids", "cti")
 os.environ["GENICAM_GENTL32_PATH"] = f"{genicam_path}:{os.environ.get('GENICAM_GENTL32_PATH', '')}"
 os.environ["GENICAM_GENTL64_PATH"] = f"{genicam_path}:{os.environ.get('GENICAM_GENTL64_PATH', '')}"
 # Print the environment variables (optional)
-print("PEAK_PATH:", os.environ.get("PEAK_PATH"))
-print("LD_LIBRARY_PATH:", os.environ.get("LD_LIBRARY_PATH"))
-print("GENICAM_GENTL32_PATH:", os.environ.get("GENICAM_GENTL32_PATH"))
-print("GENICAM_GENTL64_PATH:", os.environ.get("GENICAM_GENTL64_PATH"))
+#print("PEAK_PATH:", os.environ.get("PEAK_PATH"))
+#print("LD_LIBRARY_PATH:", os.environ.get("LD_LIBRARY_PATH"))
+#print("GENICAM_GENTL32_PATH:", os.environ.get("GENICAM_GENTL32_PATH"))
+#print("GENICAM_GENTL64_PATH:", os.environ.get("GENICAM_GENTL64_PATH"))
 
 
 import logging
@@ -100,16 +100,9 @@ def initialise_camera(
 
     #read node value
     try:
-        exposure_time = remote_device_nodemap.FindNode("ExposureTime").Value()
-        print(f"Exposure Time:        {exposure_time}")
-
-        # Get exposure range. All values in microseconds
-        min_exposure_time = remote_device_nodemap.FindNode("ExposureTime").Minimum()
-        max_exposure_time = remote_device_nodemap.FindNode("ExposureTime").Maximum()
-        print(f"Minimumposure:  {min_exposure_time}     Maximumposure: {max_exposure_time}")
-
         # change exposure
         remote_device_nodemap.FindNode("ExposureTime").SetValue(exposure) # in microseconds
+
 
     except Exception as e:
         print(f"Exposure set error: {str(e)}")
@@ -178,7 +171,7 @@ def tiff_to_jpg(tiff_path, jpg_path):
         with Image.open(tiff_path) as img:
             # Convert and save as JPEG
             img.convert("RGB").save(jpg_path, "JPEG")
-        print(f"Conversion from {tiff_path} to {jpg_path} successful.")
+        print(f"Image Captured and Saved to {jpg_path} successful.")
     except Exception as e:
         print(f"Error during conversion: {e}")
 

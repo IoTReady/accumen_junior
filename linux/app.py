@@ -23,10 +23,10 @@ os.environ["GENICAM_GENTL64_PATH"] = f"{genicam_path}:{os.environ.get('GENICAM_G
 
 
 # Print the environment variables (optional)
-print("PEAK_PATH:", os.environ.get("PEAK_PATH"))
-print("LD_LIBRARY_PATH:", os.environ.get("LD_LIBRARY_PATH"))
-print("GENICAM_GENTL32_PATH:", os.environ.get("GENICAM_GENTL32_PATH"))
-print("GENICAM_GENTL64_PATH:", os.environ.get("GENICAM_GENTL64_PATH"))
+#print("PEAK_PATH:", os.environ.get("PEAK_PATH"))
+#print("LD_LIBRARY_PATH:", os.environ.get("LD_LIBRARY_PATH"))
+#print("GENICAM_GENTL32_PATH:", os.environ.get("GENICAM_GENTL32_PATH"))
+#print("GENICAM_GENTL64_PATH:", os.environ.get("GENICAM_GENTL64_PATH"))
 
 
 
