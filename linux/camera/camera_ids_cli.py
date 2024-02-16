@@ -3,18 +3,13 @@ import os
 # Set the PEAK_PATH environment variable
 peak_path = "/home/ccmsadmin/accumen/ids-peak_2.6.1.0-16200_amd64/"
 os.environ["PEAK_PATH"] = peak_path
-
 # Set the LD_LIBRARY_PATH environment variable
 lib_path = "/home/ccmsadmin/accumen/ids-peak_2.6.1.0-16200_amd64/lib/"
 os.environ["LD_LIBRARY_PATH"] = lib_path
-
 # Set the GENICAM_GENTL32_PATH and GENICAM_GENTL64_PATH environment variables
 genicam_path = os.path.join(peak_path, "lib", "ids", "cti")
 os.environ["GENICAM_GENTL32_PATH"] = f"{genicam_path}:{os.environ.get('GENICAM_GENTL32_PATH', '')}"
 os.environ["GENICAM_GENTL64_PATH"] = f"{genicam_path}:{os.environ.get('GENICAM_GENTL64_PATH', '')}"
-
-
-
 # Print the environment variables (optional)
 print("PEAK_PATH:", os.environ.get("PEAK_PATH"))
 print("LD_LIBRARY_PATH:", os.environ.get("LD_LIBRARY_PATH"))
@@ -24,12 +19,10 @@ print("GENICAM_GENTL64_PATH:", os.environ.get("GENICAM_GENTL64_PATH"))
 
 import logging
 import ids_peak.ids_peak as ids_peak
-from io import BytesIO
 from datetime import datetime
 from subprocess import call
 from PIL import Image, ImageStat
 from ids_peak_ipl import ids_peak_ipl as ids_ipl
-#import tkinter as tk
 from time import sleep
 
 
@@ -52,14 +45,27 @@ ANALOG_GAIN = 1.53
 SATURATION = 0.7  #Node not found
 GAMMA = 0.75
 DIGITAL_RED = 1.8125
-DIGITAL_GREEN = 1
+DIGITAL_GREEN = 1.0
 DIGITAL_BLUE = 1.44531
 OFFSET_X = 0
 OFFSET_Y = 0
 WIDTH = 4000
 HEIGHT= 3000
 
-def initialise_camera(device_sel):
+def initialise_camera(
+        device_sel,
+        exposure= EXPOSURE,
+        gain= ANALOG_GAIN,
+        gaama= GAMMA,
+        wb_red= DIGITAL_RED,
+        wb_green= DIGITAL_GREEN,
+        wb_blue = DIGITAL_BLUE,
+        offsetX = OFFSET_X,
+        offsetY = OFFSET_Y,
+        width = WIDTH,
+        height = HEIGHT
+        ):
+
     #init library
     global remote_device_nodemap
     try:
@@ -103,7 +109,7 @@ def initialise_camera(device_sel):
         print(f"Minimumposure:  {min_exposure_time}     Maximumposure: {max_exposure_time}")
 
         # change exposure
-        remote_device_nodemap.FindNode("ExposureTime").SetValue(EXPOSURE) # in microseconds
+        remote_device_nodemap.FindNode("ExposureTime").SetValue(exposure) # in microseconds
 
     except Exception as e:
         print(f"Exposure set error: {str(e)}")
@@ -118,37 +124,51 @@ def initialise_camera(device_sel):
     """
     #remote_device_nodemap.FindNode("TLParamsLocked").SetValue(1)
     remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("AnalogAll")
-    remote_device_nodemap.FindNode("Gain").SetValue(ANALOG_GAIN)
+    remote_device_nodemap.FindNode("Gain").SetValue(gain)
 
     remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("DigitalRed")
-    remote_device_nodemap.FindNode("Gain").SetValue(DIGITAL_RED)
+    remote_device_nodemap.FindNode("Gain").SetValue(wb_red)
     
     remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("DigitalGreen")
-    remote_device_nodemap.FindNode("Gain").SetValue(DIGITAL_GREEN)
+    remote_device_nodemap.FindNode("Gain").SetValue(wb_green)
     
     remote_device_nodemap.FindNode("GainSelector").SetCurrentEntry("DigitalBlue")
-    remote_device_nodemap.FindNode("Gain").SetValue(DIGITAL_BLUE)
+    remote_device_nodemap.FindNode("Gain").SetValue(wb_blue)
 
     # For using Gamma set LUTEnable to false
     #Set LUTEnable to false (bool)
     remote_device_nodemap.FindNode("LUTEnable").SetValue(False)
-    remote_device_nodemap.FindNode("Gamma").SetValue(GAMMA)
+    remote_device_nodemap.FindNode("Gamma").SetValue(gaama)
     
     # Cropping and Image Size
-    remote_device_nodemap.FindNode("OffsetX").SetValue(OFFSET_X)
-    remote_device_nodemap.FindNode("OffsetY").SetValue(OFFSET_Y)
-    remote_device_nodemap.FindNode("Width").SetValue(WIDTH)
-    remote_device_nodemap.FindNode("Height").SetValue(HEIGHT)
+    remote_device_nodemap.FindNode("OffsetX").SetValue(offsetX)
+    remote_device_nodemap.FindNode("OffsetY").SetValue(offsetY)
+    remote_device_nodemap.FindNode("Width").SetValue(width)
+    remote_device_nodemap.FindNode("Height").SetValue(height)
 
-    # Color Correction Mode
-    nodeMapRemoteDevice.FindNode("ColorCorrectionMode").SetCurrentEntry("Off")
+    ## Color Correction Mode
+    #remote_device_nodemap.FindNode("ColorCorrectionMode").SetCurrentEntry("Off")
+    #remote_device_nodemap.FindNode("ColorCorrectionMatrix").SetCurrentEntry("custom0")
+    #gain_0_0 = 384 
+    #gain_0_1 = 0 
+    #gain_0_2 = 0
+    #gain_1_0 = 0
+    #gain_1_1 = 384
+    #gain_1_2 = 0 
+    #gain_2_0 = 0 
+    #gain_2_1 = 0 
+    #gain_2_2 = 384
+    #m_color_corrector_ipl = ids_ipl.ColorCorrector()
+    #color_correction_factors = ids_ipl.ColorCorrectionFactors(gain_0_0, gain_0_1, gain_0_2,
+    #                                                                     gain_1_0, gain_1_1, gain_1_2,
+    #                                                                     gain_2_0, gain_2_1, gain_2_2)
+    #m_color_corrector_ipl.SetColorCorrectionFactors(color_correction_factors)
+
     ## Auto Settings 
     #remote_device_nodemap.FindNode("ExposureAuto").SetCurrentEntry("Continuous")
     #remote_device_nodemap.FindNode("GainAuto").SetCurrentEntry("Continuous")
     #remote_device_nodemap.FindNode("BalanceWhiteAuto").SetCurrentEntry("Continuous")
 
-    # hue
-    # contrast
     return device,remote_device_nodemap
 
 
@@ -162,9 +182,13 @@ def tiff_to_jpg(tiff_path, jpg_path):
     except Exception as e:
         print(f"Error during conversion: {e}")
 
-def capture_optimised(device,remote_device_nodemap): 
+def capture_optimised(device,remote_device_nodemap,path=g_path): 
+    global g_path
     global datastream 
     global acquisition_running
+
+    g_path = path
+    assert os.path.exists(g_path), f"Directory '{g_path}' does not exist"
     try:
         ret = {}
         count = 0
@@ -198,7 +222,7 @@ def capture_optimised(device,remote_device_nodemap):
         now = int(datetime.now().timestamp())
         tmppath_png = f"/tmp/{now}.png"
         tmppath_tiff = f"/tmp/{now}.tiff"
-        tmppath= f"/tmp/{now}.jpg"
+        #tmppath= f"/tmp/{now}.jpg"
         fpath = f"{g_path}/{now}.jpg"
         #save image here
         picture = color_image.get_numpy_3D() 
@@ -207,7 +231,7 @@ def capture_optimised(device,remote_device_nodemap):
         image.save(tmppath_tiff,'TIFF')
         # Only needed until we figure out how to use crop directly within ids_peak 
         #call(f"convert {tmppath_png} -crop {g_width-2*g_xoffset}x{g_height-2*g_yoffset}+{g_xoffset}+{g_yoffset} {fpath}", shell=True)
-        tiff_to_jpg(tmppath_tiff,tmppath)
+        tiff_to_jpg(tmppath_tiff,fpath)
         ret['path'] = fpath
         ret['attempts'] = count + 1
         ret['image_obj'] = image

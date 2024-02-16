@@ -2,6 +2,7 @@ import logging
 import socket
 from time import sleep
 from zeroconf import IPVersion, ServiceInfo, Zeroconf
+from zeroconf._utils import ipaddress
 
 log = logging.getLogger(__name__)
 

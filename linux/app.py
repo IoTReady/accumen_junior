@@ -1,7 +1,7 @@
 """
 Flow:
 - Initialise camera
-- Start background thread for barcode scanning
+# - Start background thread for barcode scanning
 - Start flask app to listen for triggers
 - 
 """
@@ -46,6 +46,19 @@ stream = None
 exiting = False
 firmware_fname = "firmware.py"
 firmware_version = None
+ip_addr = "localhost"
+
+EXPOSURE = 132840
+ANALOG_GAIN = 1.53
+SATURATION = 0.7  #Node not found
+GAMMA = 0.75
+DIGITAL_RED = 1.8125
+DIGITAL_GREEN = 1.0
+DIGITAL_BLUE = 1.44531
+OFFSET_X = 0
+OFFSET_Y = 0
+WIDTH = 4000
+HEIGHT= 3000
 
 log = logging.getLogger(__name__)
 
@@ -88,7 +101,12 @@ def trigger():
     # The AIRA API expects a path wrt to the Docker container so we need to remap.
     # fpath_for_api = "/mnt/original_image/"
     print("Triggered")
-    ret = capture_optimised(cam, stream)
+    #ret = capture_optimised(cam, stream)
+    ret = capture_optimised(
+            device =cam,
+            remote_device_nodemap= stream,
+            path=g_path
+            )
     if ret.get("error"):
         return flask.Response(json.dumps(ret), status=503, mimetype="application/json")
     else:
@@ -96,7 +114,7 @@ def trigger():
         # fname = path.basename(ret.get("path"))
         # fpath = path.join(fpath_for_api, fname)
         fpath = ret.get("path")
-        validate_image(fpath)
+        validate_image(fpath,a_url=ip_addr)
         return flask.Response(json.dumps(ret), status=200, mimetype="application/json")
 
 
@@ -125,6 +143,17 @@ def get_rgb():
     response_json = {"red": red, "green": green, "blue": blue}
     return flask.Response(json.dumps(response_json), status=200, mimetype="application/json")
 
+@app.get("/srgb")
+def set_rgb():
+    global g_led_rgb
+    red = flask.request.args.get("red", type=int)
+    green = flask.request.args.get("green", type=int)
+    blue = flask.request.args.get("blue", type=int)
+    if red is not None and green is not None and blue is not None:
+        g_led_rgb = (red, green, blue)
+    response_json = {"red": g_led_rgb[0], "green": g_led_rgb[1], "blue": g_led_rgb[2]}
+    return flask.Response(json.dumps(response_json), status=200, mimetype="application/json")
+
 
 @app.post("/logs")
 @app.post("/log")
@@ -141,35 +170,79 @@ def main(
     logfile: str = "accumen_junior.log",
     host: str = "0.0.0.0",
     port: int = 8000,
+    ip: str = "localhost", 
     skip: int = 2,
     red: int = 255,
     green: int = 255,
-    blue: int = 255
-):
+    blue: int = 255,
+    path: str = g_path,
+    exposure: int = EXPOSURE,
+    gain: float = ANALOG_GAIN,
+    gaama: float = GAMMA,
+    wb_red: float = DIGITAL_RED,
+    wb_green: float = DIGITAL_GREEN,
+    wb_blue: float = DIGITAL_BLUE,
+    offsetX: int = OFFSET_X,
+    offsetY: int = OFFSET_Y,
+    width: int = WIDTH,
+    height: int = HEIGHT
+    ):
     global cam
     global stream
     global exiting
     global g_led_rgb 
+    global g_path
+    global ip_addr
+    
+    global EXPOSURE
+    global ANALOG_GAIN
+    global GAMMA
+    global DIGITAL_RED
+    global DIGITAL_GREEN
+    global DIGITAL_BLUE
+    global OFFSET_X
+    global OFFSET_Y
+    global WIDTH 
+    global HEIGHT
+
     g_led_rgb = (red, green, blue)
+    g_path = path
+    ip_addr = ip
+ 
+    EXPOSURE = exposure 
+    ANALOG_GAIN = gain
+    GAMMA = gaama
+    DIGITAL_RED = wb_red
+    DIGITAL_GREEN = wb_green
+    DIGITAL_BLUE = wb_blue
+    OFFSET_X = offsetX
+    OFFSET_Y = offsetY
+    WIDTH = width
+    HEIGHT = height
+    
     logging.basicConfig(
         level=logging.DEBUG,
         filename=logfile,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     )
-    #cam, stream = initialise_camera(
-    #    device=device, 
-    #    path=path,
-    #    skip=skip,
-    #)
-    cam, stream = initialise_camera(device) ## add device sel. control
+    cam, stream = initialise_camera(
+            device_sel=device,
+            exposure= EXPOSURE,
+            gain= ANALOG_GAIN,
+            gaama= GAMMA,
+            wb_red= DIGITAL_RED,
+            wb_green= DIGITAL_GREEN,
+            wb_blue = DIGITAL_BLUE,
+            offsetX = OFFSET_X,
+            offsetY = OFFSET_Y,
+            width = WIDTH,
+            height = HEIGHT
+                                    ) ## add device sel. control
     try:
         init_service(host, port)
     except Exception as e:
         print("Exception in mdns.init_service:", str(e))
     app.run(host=host, port=port, debug=False)
-    #stream.close()
-    #cam.close()
-    #close camera and library cleanly
     close_cam()
 
 
