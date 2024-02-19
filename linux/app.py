@@ -22,15 +22,6 @@ os.environ["GENICAM_GENTL64_PATH"] = f"{genicam_path}:{os.environ.get('GENICAM_G
 
 
 
-# Print the environment variables (optional)
-#print("PEAK_PATH:", os.environ.get("PEAK_PATH"))
-#print("LD_LIBRARY_PATH:", os.environ.get("LD_LIBRARY_PATH"))
-#print("GENICAM_GENTL32_PATH:", os.environ.get("GENICAM_GENTL32_PATH"))
-#print("GENICAM_GENTL64_PATH:", os.environ.get("GENICAM_GENTL64_PATH"))
-
-
-
-
 import logging
 import json
 import typer
@@ -47,6 +38,7 @@ exiting = False
 firmware_fname = "firmware.py"
 firmware_version = None
 ip_addr = "localhost"
+ip_port = 9099
 
 EXPOSURE = 132840
 ANALOG_GAIN = 1.53
@@ -114,7 +106,7 @@ def trigger():
         # fname = path.basename(ret.get("path"))
         # fpath = path.join(fpath_for_api, fname)
         fpath = ret.get("path")
-        validate_image(fpath,a_url=ip_addr)
+        validate_image(fpath,a_url=ip_addr,a_port = ip_port)
         return flask.Response(json.dumps(ret), status=200, mimetype="application/json")
 
 
@@ -170,7 +162,8 @@ def main(
     logfile: str = "accumen_junior.log",
     host: str = "0.0.0.0",
     port: int = 8000,
-    ip: str = "localhost", 
+    ip: str = "localhost",
+    ipPort: int = 9099,
     skip: int = 2,
     red: int = 255,
     green: int = 255,
@@ -193,6 +186,7 @@ def main(
     global g_led_rgb 
     global g_path
     global ip_addr
+    global ip_port
     
     global EXPOSURE
     global ANALOG_GAIN
@@ -208,6 +202,7 @@ def main(
     g_led_rgb = (red, green, blue)
     g_path = path
     ip_addr = ip
+    ip_port = ipPort 
  
     EXPOSURE = exposure 
     ANALOG_GAIN = gain

@@ -101,6 +101,9 @@ def initialise_camera(
     #read node value
     try:
         # change exposure
+        exposure_time = remote_device_nodemap.FindNode("ExposureTime").Value()
+        min_exposure_time = remote_device_nodemap.FindNode("ExposureTime").Minimum()
+        max_exposure_time = remote_device_nodemap.FindNode("ExposureTime").Maximum()
         remote_device_nodemap.FindNode("ExposureTime").SetValue(exposure) # in microseconds
 
 
