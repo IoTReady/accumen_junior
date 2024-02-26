@@ -1,3 +1,4 @@
+import os
 import cProfile
 import sys
 from asyncio import sleep
@@ -7,13 +8,28 @@ from time import sleep
 from datetime import datetime
 from PIL import Image
 
+g_path = "/tmp"
 gain_redux = 0
 EXPOSURE = 10000
 GAIN = 1
 GAMMA = 1
+WIDTH = 4000
+HEIGHT = 3000
 
 
-def initialise_camera(exposure,gamma,gain):
+def initialise_camera(
+        device_sel,
+        exposure= EXPOSURE,
+        gain= GAIN,
+        gamma= GAMMA,
+        #wb_red= DIGITAL_RED,
+        #wb_green= DIGITAL_GREEN,
+        #wb_blue = DIGITAL_BLUE,
+        #offsetX = OFFSET_X,
+        #offsetY = OFFSET_Y,
+        width = WIDTH,
+        height = HEIGHT
+        ):
     try:
         # Create an instant camera object for the first available camera
         camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice()) 
@@ -48,8 +64,9 @@ def save_image(camera,img, img_res):
     try:
         now = int(datetime.now().timestamp())
         tmppath = f"/tmp/{now}.tiff"
-        tmppath_png = f"/tmp/png/{now}.png"
-        tmppath_jpg = f"/tmp/jpg/{now}.jpg"
+        tmppath_png = f"/tmp/{now}.png"
+        tmppath_jpg = f"/tmp/{now}.jpg"
+        fpath = f"{g_path}/{now}.jpg"
         if img is not None and img.GrabSucceeded():
 
             img_res.AttachGrabResultBuffer(img)
@@ -62,7 +79,7 @@ def save_image(camera,img, img_res):
             #print(f"Image Saved {tmppath_png}")
 
             tiff_image = Image.open(tmppath).convert("RGB")
-            tiff_image.save(tmppath_jpg,"JPEG",quality=100)
+            tiff_image.save(fpath,"JPEG",quality=100)
             print(f"Image Saved {tmppath_jpg}")
 
             # Release the image
@@ -72,31 +89,28 @@ def save_image(camera,img, img_res):
         if camera.IsGrabbing():
             camera.StopGrabbing()
         img = capture_frame(camera)
-        return tmppath 
+        return fpath, img_res 
     except Exception as e:
         print(f"Error saving image: {e}")
-        return e
+        return e, img_res
 
-def capture_optimised(camera, img_res):
+def capture_optimised(camera, img_res, path = g_path):
+    global g_path
+    g_path = path
+    assert os.path.exists(g_path), f"Directory '{g_path}' does not exist"
     try:
+        ret = {}
+        count = 0
         img = capture_frame(camera)
         ERROR_MSG = None
-        PATH = None
         try:
-            PATH = save_image(camera, img, img_res)
+            g_path, img= save_image(camera, img, img_res)
         except Exception as e:
             ERROR_MSG = e
-        ret = {
-                'brightness': None,
-                'hue': None,
-                'contrast': None,
-                'path': PATH,
-                'attempts': None,
-                'exposure': EXPOSURE,
-                'gain': GAIN,
-                'img': img,
-                'error': ERROR_MSG 
-            }
+        ret['path'] = g_path
+        ret['attempts'] = count + 1
+        ret['image_obj'] = img_res
+        ret['image'] = img #ids_peak image byte
         return ret
     except Exception as e:
         print(str(e))
