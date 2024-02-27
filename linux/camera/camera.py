@@ -9,40 +9,59 @@ from datetime import datetime
 from PIL import Image
 
 g_path = "/tmp"
-gain_redux = 0
-EXPOSURE = 10000
+EXPOSURE = 40000 
 GAIN = 1
-GAMMA = 1
-WIDTH = 4000
+GAMMA = 3
+WIDTH = 4096
 HEIGHT = 3000
-
+BALANCE_RATIO_SELECTOR_GREEN = 1.0
+BALANCE_RATIO_SELECTOR_RED = 1.0
+BALANCE_RATIO_SELECTOR_BLUE = 1.0
+OFFSET_X = 0 
+OFFSET_Y = 0 
 
 def initialise_camera(
         device_sel,
         exposure= EXPOSURE,
         gain= GAIN,
         gamma= GAMMA,
-        #wb_red= DIGITAL_RED,
-        #wb_green= DIGITAL_GREEN,
-        #wb_blue = DIGITAL_BLUE,
-        #offsetX = OFFSET_X,
-        #offsetY = OFFSET_Y,
+        wb_green = BALANCE_RATIO_SELECTOR_GREEN,
+        wb_red = BALANCE_RATIO_SELECTOR_RED,
+        wb_blue = BALANCE_RATIO_SELECTOR_BLUE,
+        offsetX = OFFSET_X,
+        offsetY = OFFSET_Y,
         width = WIDTH,
         height = HEIGHT
         ):
     try:
         # Create an instant camera object for the first available camera
         camera = pylon.InstantCamera(pylon.TlFactory.GetInstance().CreateFirstDevice()) 
+        camera_info = pylon.InstantCamera(pylon.TlFactory.GetInstance().EnumerateDevices()) 
+        print(f"camera_info: {camera_info}")
         img_res = pylon.PylonImage()
         # Open the camera
         camera.Open()
         
         # https://docs.baslerweb.com/gamma#python
-
+        camera.GainAuto.SetValue("Off")
         camera.ExposureTime.SetValue(exposure)  # 10,000 microseconds (10 ms) 
         camera.Gain.SetValue(gain)  # Set gain to 6 dB
         camera.Gamma.SetValue(gamma) # Gamma < 1: The overall brightness increases.
-        
+
+        camera.Width.SetValue(width)
+        camera.OffsetX.SetValue(offsetX);
+        camera.Height.SetValue(height)
+        camera.OffsetY.SetValue(offsetY);
+
+        #white balance
+        camera.BalanceRatioSelector.SetValue('BalanceRatioSelector_Green');
+        camera.BalanceRatioAbs.SetValue(wb_green);
+        camera.BalanceRatioSelector.SetValue('BalanceRatioSelector_Red');
+        camera.BalanceRatioAbs.SetValue(wb_red);
+        camera.BalanceRatioSelector.SetValue('BalanceRatioSelector_Blue');
+        camera.BalanceRatioAbs.SetValue(wb_blue);
+        camera.BalanceWhiteAuto.SetValue('Off');
+
         return camera, img_res
     except Exception as e:
         print(f"Error initializing camera: {e}")

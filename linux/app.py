@@ -28,12 +28,20 @@ LOG_LEVELS = {
     "warn": log.warn,
     "error": log.error,
 }
-
-EXPOSURE = 10000
-GAIN = 1
-GAMMA = 1
-
+ip_addr = "localhost"
+ip_port = 9099
 g_path = "/tmp"
+
+EXPOSURE = 40000 
+GAIN = 1
+GAMMA = 3
+WIDTH = 4096
+HEIGHT = 3000
+BALANCE_RATIO_SELECTOR_GREEN = 1.0
+BALANCE_RATIO_SELECTOR_RED = 1.0
+BALANCE_RATIO_SELECTOR_BLUE = 1.0
+OFFSET_X = 0 
+OFFSET_Y = 0 
 
 
 try:
@@ -68,7 +76,7 @@ def trigger():
         # fname = path.basename(ret.get("path"))
         # fpath = path.join(fpath_for_api, fname)
         fpath = ret.get("path")
-        validate_image(fpath)
+        validate_image(fpath, a_url=ip_addr,a_port = ip_port)
         return flask.Response(json.dumps(ret), status=200, mimetype="application/json")
 
 
@@ -106,7 +114,23 @@ def main(
     logfile: str = "accumen_junior.log",
     host: str = "0.0.0.0",
     port: int = 8000,
+    ip: str = "localhost",
+    ipPort: int = 9099,
+    skip: int = 2,
+    red: int = 255,
+    green: int = 255,
+    blue: int = 255,
     path: str = g_path,
+    exposure: int = EXPOSURE,
+    gain: float = GAIN,
+    gaama: float = GAMMA,
+    wb_green: float = BALANCE_RATIO_SELECTOR_GREEN,
+    wb_red: float = BALANCE_RATIO_SELECTOR_RED,
+    wb_blue: float = BALANCE_RATIO_SELECTOR_BLUE,
+    offsetX: int = OFFSET_X,
+    offsetY: int = OFFSET_Y,
+    width: int = WIDTH,
+    height: int = HEIGHT
 ):
     global cam
     global stream

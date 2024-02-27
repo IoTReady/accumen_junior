@@ -8,6 +8,10 @@ base_url = "http://192.168.10.1"
 username = "B12345"
 password = "Callme@11"
 
+arg_url ="localhost"
+arg_port = 9099
+
+
 try:
     interface = environ.get('INTERFACE')
     assert interface != None, "Not set"
@@ -41,7 +45,7 @@ def get_refresh_token():
     return res.get("refresh_token")
 
 
-def validate_image(image_path, barcode=None):
+def validate_image(image_path, barcode=None, a_url = arg_url,a_port = arg_port):
     # res = login()
     headers = {
         "Content-Type": "application/json",
@@ -57,7 +61,8 @@ def validate_image(image_path, barcode=None):
         "userId": username,
     }
     print("validate_image req", req)
-    url = "http://localhost:9099/ccms/validate/image"
+    #url = "http://localhost:9099/ccms/validate/image"
+    url = "http://{a_url}:{a_port}/ccms/validate/image"
     res = requests.post(url, data=json.dumps(req), headers=headers)
     print(res.text)
     return res.json()
